@@ -628,35 +628,33 @@
     </header>
 
     <nav>
-        <button class="active" data-tab="dashboard">Dashboard</button>
-        <button data-tab="map">Campaign Map</button>
+        <button class="active" data-tab="map">Campaign Map</button>
         <button data-tab="players">Players</button>
         <button data-tab="games">Games</button>
         <button data-tab="coins">Coins</button>
         <button data-tab="submit">Submit Game</button>
-        <button data-tab="admin">Admin</button>
         <button data-tab="data" class="admin-only" style="display: none;">Import/Export</button>
+        <button data-tab="admin" style="opacity: 0.5; font-size: 0.85em;">Admin</button>
     </nav>
 
     <main>
-        <!-- Dashboard Tab -->
-        <div id="dashboard" class="tab-content active">
+        <!-- Campaign Map Tab (combined dashboard + map) -->
+        <div id="map" class="tab-content active">
+            <!-- Campaign Status and Leaderboard -->
             <div class="grid-2">
                 <div class="card">
                     <h2>Campaign Status</h2>
-                    <div class="grid-2">
-                        <div>
-                            <h3>Allied Cities</h3>
-                            <div style="font-size: 2rem; color: var(--allied-light);" id="allied-cities">0</div>
-                            <div style="color: var(--text-secondary);">of 7 needed to win</div>
+                    <div style="display: flex; gap: 2rem; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 2.5rem; font-weight: bold; color: var(--allied-light);" id="allied-cities">0</div>
+                            <div style="color: var(--text-secondary);">Allied Cities</div>
                         </div>
-                        <div>
-                            <h3>Axis Cities</h3>
-                            <div style="font-size: 2rem; color: var(--axis-light);" id="axis-cities">7</div>
-                            <div style="color: var(--text-secondary);">currently held</div>
+                        <div style="font-size: 1.5rem; color: var(--text-secondary);">vs</div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 2.5rem; font-weight: bold; color: var(--axis-light);" id="axis-cities">7</div>
+                            <div style="color: var(--text-secondary);">Axis Cities</div>
                         </div>
                     </div>
-                    <h3>City Control</h3>
                     <div id="city-status"></div>
                 </div>
 
@@ -667,27 +665,8 @@
                 </div>
             </div>
 
+            <!-- Campaign Map -->
             <div class="card">
-                <h2>Recent Games</h2>
-                <div id="recent-games"></div>
-            </div>
-
-            <div class="card">
-                <h2>Quick Actions</h2>
-                <div class="flex gap-1 flex-wrap">
-                    <button onclick="switchTab('submit')">Submit Game Result</button>
-                    <button class="admin-only" onclick="showNewGameModal()" style="display: none;">Record Game (Admin)</button>
-                    <button class="admin-only secondary" onclick="showAddPlayerModal()" style="display: none;">Add Player</button>
-                    <button class="admin-only secondary" onclick="showAddCoinsModal()" style="display: none;">Award Coins</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Map Tab -->
-        <div id="map" class="tab-content">
-            <div class="card">
-                <h2>Campaign Map</h2>
-
                 <!-- Position Editor Controls (hidden) -->
                 <div class="editor-controls" id="editor-controls" style="display: none;">
                     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
@@ -709,7 +688,7 @@
                 </div>
 
                 <p style="color: var(--text-secondary); margin-bottom: 1rem;" id="map-legend">
-                    Click on a sector to view details or change control.
+                    Click on a sector to view details.
                     <span class="badge allied">Red = Allied</span>
                     <span class="badge axis">Black = Axis</span>
                 </p>
@@ -735,6 +714,12 @@
                     <button class="secondary" onclick="resetPositions()">Reset to Defaults</button>
                 </div>
                 <div class="code-output" id="positions-code"></div>
+            </div>
+
+            <!-- Recent Games -->
+            <div class="card">
+                <h2>Recent Games</h2>
+                <div id="recent-games"></div>
             </div>
         </div>
 
