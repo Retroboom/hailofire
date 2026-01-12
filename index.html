@@ -117,6 +117,7 @@
             gap: 2rem;
             flex-wrap: wrap;
             font-size: 0.95rem;
+            row-gap: 0.5rem;
         }
 
         .stats-banner .stat-item {
@@ -170,6 +171,17 @@
             width: 1px;
             height: 30px;
             background: var(--bg-light);
+        }
+
+        @media (max-width: 900px) {
+            .stats-banner {
+                gap: 1rem;
+                row-gap: 0.3rem;
+                padding: 0.5rem 1rem;
+            }
+            .stats-banner .divider {
+                display: none;
+            }
         }
 
         nav {
@@ -807,10 +819,6 @@
             <span class="label">Campaign Ends In</span>
             <span class="value" id="countdown-timer">--d --h --m --s</span>
         </div>
-        <div class="divider"></div>
-        <div class="stat-item">
-            <span class="sync-status" id="sync-status">Connecting...</span>
-        </div>
     </div>
 
     <nav style="display: flex; justify-content: space-between;">
@@ -819,8 +827,8 @@
             <button data-tab="rules">Rules</button>
             <button data-tab="players">Players</button>
             <button data-tab="games">Games</button>
-            <button data-tab="coins">Coins</button>
-            <button data-tab="submit">Submit Game</button>
+            <button data-tab="submit">Submit Game Results</button>
+            <button data-tab="coins" class="admin-only" style="display: none;">Coins</button>
             <button data-tab="data" class="admin-only" style="display: none;">Import/Export</button>
         </div>
         <button data-tab="admin" style="opacity: 0.5; font-size: 0.85em;">Admin</button>
@@ -1300,12 +1308,12 @@
             </div>
         </div>
 
-        <!-- Coins Tab -->
+        <!-- Coins Tab (Admin Only) -->
         <div id="coins" class="tab-content">
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                     <h2 style="margin: 0; border: none; padding: 0;">Coin Transactions</h2>
-                    <button class="admin-only" onclick="showAddCoinsModal()" style="display: none;">Award Coins</button>
+                    <button onclick="showAddCoinsModal()">Award Coins</button>
                 </div>
                 <div style="overflow-x: auto;">
                     <table id="coins-table">
@@ -1459,7 +1467,7 @@
             </div>
 
             <div class="card">
-                <h2>Your Pending Submissions</h2>
+                <h2>Pending Submissions</h2>
                 <div id="my-pending-games">
                     <p style="color: var(--text-secondary);">No pending submissions.</p>
                 </div>
@@ -1530,6 +1538,7 @@
                 <select id="player-side" required>
                     <option value="Allied">Allied</option>
                     <option value="Axis">Axis</option>
+                    <option value="Substitute">Substitute (not on a side)</option>
                 </select>
 
                 <button type="submit">Add Player</button>
@@ -2193,8 +2202,9 @@
                 return `<span class="badge ${ctrl.toLowerCase()}" style="margin: 2px;">${c}</span>`;
             }).join('');
 
-            // Top players
+            // Top players (exclude Substitutes)
             const players = campaignData.players
+                .filter(p => p.side !== 'Substitute')
                 .map(p => ({ ...p, ...getPlayerStats(p.name) }))
                 .sort((a, b) => b.coins - a.coins)
                 .slice(0, 5);
@@ -2237,6 +2247,7 @@
         function renderPlayers() {
             const tbody = document.querySelector('#players-table tbody');
             const players = campaignData.players
+                .filter(p => p.side !== 'Substitute')
                 .map(p => ({ ...p, ...getPlayerStats(p.name) }))
                 .sort((a, b) => b.coins - a.coins);
 
@@ -2788,7 +2799,7 @@ Allied: ${allied} | Axis: ${axis}
             if (!fromSelect || !toSelect) return;
 
             const options = Object.entries(SECTOR_DEFINITIONS)
-                .map(([code, def]) => `<option value="${code}">${code} - ${def.name}</option>`)
+                .map(([code, def]) => `<option value="${code}">${def.name}</option>`)
                 .join('');
 
             fromSelect.innerHTML = '<option value="">Select sector...</option>' + options;
@@ -3120,5 +3131,9 @@ Allied: ${allied} | Axis: ${axis}
         // Initialize positions on load
         initPositions();
     </script>
+
+    <footer style="text-align: center; padding: 1rem; color: var(--text-secondary); font-size: 0.8rem; border-top: 1px solid var(--bg-light);">
+        <span class="sync-status" id="sync-status">Connecting...</span>
+    </footer>
 </body>
 </html>
