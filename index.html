@@ -7,19 +7,43 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <!-- Google Fonts - Stencil Military Style -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        @font-face {
+            font-family: 'Bad Grunge';
+            src: url('BAD GRUNGE.ttf') format('truetype');
+        }
+
         :root {
-            --allied-color: #b22222;
-            --allied-light: #dc3545;
-            --axis-color: #1a1a1a;
-            --axis-light: #444444;
-            --bg-dark: #1a1a2e;
-            --bg-medium: #16213e;
-            --bg-light: #0f3460;
-            --text-primary: #eee;
-            --text-secondary: #aaa;
-            --accent: #c4a574;
-            --gold: #ffd700;
+            /* Faction colors - Red Allies, Field gray Axis */
+            --allied-color: #8b1e1e;
+            --allied-light: #c94444;
+            --axis-color: #36454f;
+            --axis-light: #5a6a72;
+
+            /* Cool steel/battleship palette */
+            --bg-dark: #0f1318;
+            --bg-medium: #1a2029;
+            --bg-light: #262f3d;
+            --bg-surface: #343f4f;
+
+            /* Text */
+            --text-primary: #e8ecf1;
+            --text-secondary: #9aa5b1;
+
+            /* Accents */
+            --accent: #c9a227;
+            --gold: #e6b422;
+            --olive: #4a5a3a;
+            --olive-light: #5d7245;
+            --military-green: #3a4a2d;
+
+            /* Extras */
+            --parchment: #d4dae0;
+            --rust: #b5651d;
         }
 
         * {
@@ -29,50 +53,112 @@
         }
 
         body {
-            font-family: 'American Typewriter', 'Courier New', Courier, monospace;
+            font-family: 'Oswald', sans-serif;
+            font-weight: 400;
             background: var(--bg-dark);
+            background-image:
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 50px,
+                    rgba(0,0,0,0.1) 50px,
+                    rgba(0,0,0,0.1) 51px
+                ),
+                repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 50px,
+                    rgba(0,0,0,0.1) 50px,
+                    rgba(0,0,0,0.1) 51px
+                );
             color: var(--text-primary);
             min-height: 100vh;
         }
 
+        .header-top-bar {
+            height: 4px;
+            background: var(--olive);
+            margin-top: 1rem;
+        }
+
         header {
-            background: linear-gradient(135deg, var(--bg-medium), var(--bg-light));
+            background: var(--bg-medium);
             padding: 1rem 2rem;
-            border-bottom: 3px solid var(--accent);
+            border-bottom: 4px solid var(--olive);
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
             flex-wrap: wrap;
             gap: 1rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
 
         header h1 {
-            font-size: 1.5rem;
+            font-family: 'Black Ops One', cursive;
+            font-size: 2.5rem;
+            color: var(--text-primary);
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
         header h1 span {
+            color: var(--text-primary);
+        }
+
+        .stats-banner {
+            background: linear-gradient(90deg, var(--bg-dark), var(--bg-medium), var(--bg-dark));
+            border-top: 1px solid var(--bg-light);
+            border-bottom: 1px solid var(--bg-light);
+            padding: 0.75rem 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            font-size: 0.95rem;
+        }
+
+        .stats-banner .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        .stats-banner .stat-item .label {
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.85rem;
+        }
+
+        .stats-banner .stat-item .value {
+            font-family: 'Black Ops One', cursive;
+            font-size: 1.3rem;
             color: var(--accent);
         }
 
-        .header-stats {
-            display: flex;
-            gap: 2rem;
-            font-size: 0.9rem;
+        .stats-banner .stat-item.allied .value {
+            color: var(--allied-light);
         }
 
-        .header-stat {
-            text-align: center;
+        .stats-banner .stat-item.axis .value {
+            color: var(--axis-light);
         }
 
-        .header-stat .value {
-            font-size: 1.5rem;
-            font-weight: bold;
-            text-shadow: -0.5px -0.5px 0 #fff, 0.5px -0.5px 0 #fff, -0.5px 0.5px 0 #fff, 0.5px 0.5px 0 #fff;
+        .stats-banner .stat-item.countdown .value {
+            color: var(--accent);
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            min-width: 170px;
+            display: inline-block;
         }
 
-        .header-stat.allied .value { color: var(--allied-light); }
-        .header-stat.axis .value { color: var(--axis-light); }
+        .stats-banner .divider {
+            width: 1px;
+            height: 30px;
+            background: var(--bg-light);
+        }
 
         nav {
             background: var(--bg-medium);
@@ -83,22 +169,28 @@
         }
 
         nav button {
-            background: var(--bg-light);
+            background: linear-gradient(180deg, var(--bg-light), var(--bg-medium));
             color: var(--text-primary);
             border: none;
+            outline: none;
             padding: 0.75rem 1.5rem;
             cursor: pointer;
             border-radius: 4px;
             transition: all 0.2s;
             font-size: 0.9rem;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+        }
+
+        nav button:focus {
+            outline: none;
         }
 
         nav button:hover {
-            background: var(--accent);
+            background: linear-gradient(180deg, var(--bg-surface), var(--bg-light));
         }
 
         nav button.active {
-            background: var(--accent);
+            background: linear-gradient(180deg, var(--olive), var(--military-green));
         }
 
         main {
@@ -117,21 +209,49 @@
 
         .card {
             background: var(--bg-medium);
-            border-radius: 8px;
+            border-radius: 4px;
             padding: 1.5rem;
             margin-bottom: 1rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+            border: 1px solid var(--bg-light);
+            border-left: 4px solid var(--olive);
+            position: relative;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0,0,0,0.03) 2px,
+                rgba(0,0,0,0.03) 4px
+            );
+            pointer-events: none;
+            border-radius: 4px;
         }
 
         .card h2 {
+            font-family: 'Black Ops One', cursive;
             margin-bottom: 1rem;
             color: var(--accent);
-            border-bottom: 1px solid var(--bg-light);
+            border-bottom: 2px solid var(--olive);
             padding-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
         .card h3 {
+            font-family: 'Oswald', sans-serif;
             margin: 1rem 0 0.5rem;
             color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .grid-2 {
@@ -170,35 +290,41 @@
         }
 
         button {
-            background: var(--accent);
+            font-family: 'Oswald', sans-serif;
+            background: linear-gradient(180deg, var(--olive-light), var(--olive));
             color: white;
             border: none;
             padding: 0.75rem 1.5rem;
             cursor: pointer;
-            border-radius: 4px;
+            border-radius: 2px;
             font-size: 1rem;
             transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+            border-bottom: 2px solid rgba(0,0,0,0.3);
         }
 
         button:hover {
             opacity: 0.9;
             transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
         }
 
         button.secondary {
-            background: var(--bg-light);
+            background: linear-gradient(180deg, var(--bg-light), var(--bg-medium));
         }
 
         button.allied {
-            background: var(--allied-color);
+            background: linear-gradient(180deg, var(--allied-light), var(--allied-color));
         }
 
         button.axis {
-            background: var(--axis-color);
+            background: linear-gradient(180deg, var(--axis-light), var(--axis-color));
         }
 
         button.danger {
-            background: #c0392b;
+            background: linear-gradient(180deg, #e74c3c, #c0392b);
         }
 
         table {
@@ -214,12 +340,16 @@
         }
 
         th {
+            font-family: 'Oswald', sans-serif;
             background: var(--bg-light);
             color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 2px solid var(--olive);
         }
 
         tr:hover {
-            background: rgba(233, 69, 96, 0.1);
+            background: rgba(85, 107, 47, 0.15);
         }
 
         .badge {
@@ -249,11 +379,27 @@
             width: 100%;
             max-width: 1000px;
             margin: 0 auto;
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+
+        .map-container::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.4) 100%);
+            pointer-events: none;
+            border-radius: 4px;
         }
 
         .map-container img {
             width: 100%;
-            border-radius: 8px;
+            border-radius: 4px;
+            filter: sepia(20%) contrast(1.05) saturate(0.9);
         }
 
         .sector-overlay {
@@ -262,6 +408,7 @@
             left: 0;
             width: 100%;
             height: 100%;
+            z-index: 1;
         }
 
         .sector-marker {
@@ -395,11 +542,14 @@
             align-items: center;
             padding: 1rem;
             background: var(--bg-dark);
-            border-radius: 8px;
+            border-radius: 2px;
             margin-bottom: 0.5rem;
+            border-left: 3px solid var(--olive);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
         .leaderboard-rank {
+            font-family: 'Black Ops One', cursive;
             font-size: 1.5rem;
             font-weight: bold;
             width: 50px;
@@ -411,8 +561,10 @@
         }
 
         .leaderboard-name {
+            font-family: 'Oswald', sans-serif;
             font-size: 1.1rem;
             font-weight: bold;
+            text-transform: uppercase;
         }
 
         .leaderboard-stats {
@@ -425,9 +577,14 @@
         }
 
         .leaderboard-coins .coins {
+            font-family: 'Black Ops One', cursive;
             font-size: 1.5rem;
             font-weight: bold;
             color: var(--gold);
+        }
+
+        .leaderboard-coins .coins::before {
+            content: '🪙 ';
         }
 
         .leaderboard-coins .rerolls {
@@ -605,35 +762,55 @@
     </style>
 </head>
 <body>
+    <div class="header-top-bar"></div>
     <header>
         <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
-            <h1>Hail of Fire: <span>Operation Overlord</span></h1>
+            <h1>Hail of Fire: <span>Operation Overlord Campaign</span></h1>
             <span class="admin-badge admin-only-inline" style="display: none;">ADMIN</span>
-            <span class="sync-status" id="sync-status">Connecting...</span>
-        </div>
-        <div class="header-stats">
-            <div class="header-stat allied">
-                <div class="value" id="allied-sectors">5</div>
-                <div>Allied Sectors</div>
-            </div>
-            <div class="header-stat">
-                <div class="value" id="total-games">0</div>
-                <div>Games Played</div>
-            </div>
-            <div class="header-stat axis">
-                <div class="value" id="axis-sectors">45</div>
-                <div>Axis Sectors</div>
-            </div>
         </div>
     </header>
 
-    <nav>
-        <button class="active" data-tab="map">Campaign Map</button>
-        <button data-tab="players">Players</button>
-        <button data-tab="games">Games</button>
-        <button data-tab="coins">Coins</button>
-        <button data-tab="submit">Submit Game</button>
-        <button data-tab="data" class="admin-only" style="display: none;">Import/Export</button>
+    <div class="stats-banner">
+        <div class="stat-item allied">
+            <span class="label">Allied Sectors</span>
+            <span class="value" id="allied-sectors">5</span>
+        </div>
+        <div class="divider"></div>
+        <div class="stat-item axis">
+            <span class="label">Axis Sectors</span>
+            <span class="value" id="axis-sectors">45</span>
+        </div>
+        <div class="divider"></div>
+        <div class="stat-item">
+            <span class="label">Battles Fought</span>
+            <span class="value" id="battles-fought">0</span>
+        </div>
+        <div class="divider"></div>
+        <div class="stat-item">
+            <span class="label">Campaign Week</span>
+            <span class="value" id="header-week">1</span>
+        </div>
+        <div class="divider"></div>
+        <div class="stat-item countdown">
+            <span class="label">Campaign Ends In</span>
+            <span class="value" id="countdown-timer">--d --h --m --s</span>
+        </div>
+        <div class="divider"></div>
+        <div class="stat-item">
+            <span class="sync-status" id="sync-status">Connecting...</span>
+        </div>
+    </div>
+
+    <nav style="display: flex; justify-content: space-between;">
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <button class="active" data-tab="map">Campaign Map</button>
+            <button data-tab="rules">Rules</button>
+            <button data-tab="players">Players</button>
+            <button data-tab="games">Games</button>
+            <button data-tab="coins">Coins</button>
+            <button data-tab="submit">Submit Game</button>
+            <button data-tab="data" class="admin-only" style="display: none;">Import/Export</button>
+        </div>
         <button data-tab="admin" style="opacity: 0.5; font-size: 0.85em;">Admin</button>
     </nav>
 
@@ -697,8 +874,8 @@
                     <div class="sector-overlay" id="sector-overlay"></div>
                 </div>
                 <div class="mt-1">
-                    <h3>Sector Legend</h3>
-                    <div id="sector-list" class="grid-3 mt-1"></div>
+                    <h3>Controlled Cities</h3>
+                    <div id="city-control-list" class="mt-1" style="display: flex; flex-wrap: wrap; gap: 0.5rem;"></div>
                 </div>
             </div>
 
@@ -720,6 +897,339 @@
             <div class="card">
                 <h2>Recent Games</h2>
                 <div id="recent-games"></div>
+            </div>
+        </div>
+
+        <!-- Rules Tab -->
+        <div id="rules" class="tab-content">
+            <div class="card">
+                <h2>Campaign Overview</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                    This is a flexible, map-based campaign where players fight for control of Normandy over 8 weeks. Players schedule games at their convenience, fight for sectors on the campaign map, and earn raffle coins for recognition and potential prizes.
+                </p>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                    The campaign is designed to specifically accommodate any level of participation - play one game or twenty!
+                </p>
+
+                <h3>Core Principles</h3>
+                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                    <li>Play as much or as little as you want</li>
+                    <li>Bring whatever forces you want (within reason)</li>
+                    <li>Change your army between games freely</li>
+                    <li>Everyone has a fair shot at recognition and prizes</li>
+                    <li>Earn bonus coins by supporting the store</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2>Joining the Campaign</h2>
+                <h3>To Join</h3>
+                <ol style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                    <li>Declare your forces: <strong>Axis</strong> or <strong>Allied</strong></li>
+                    <li>Add your name to the campaign roster (Discord/store)</li>
+                    <li>Start scheduling games!</li>
+                </ol>
+                <p style="color: var(--text-secondary);">
+                    <strong>Your declared side determines:</strong> Which "winning side" raffle you're eligible for at campaign end. That's it. If need be, you can still play games representing either side during the campaign.
+                </p>
+            </div>
+
+            <div class="card">
+                <h2>Scheduling & Playing Games</h2>
+
+                <h3>Step 1: Schedule a Game</h3>
+                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                    <li>Contact another campaign participant (Discord/in-store)</li>
+                    <li>Agree on date/time to play</li>
+                    <li>Determine who will play Allied and who will play Axis for this game</li>
+                </ul>
+
+                <h3>Step 2: Roll for Initiative</h3>
+                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                    <li>Both players roll 1d6</li>
+                    <li><strong>Allied player adds +1 to their roll and wins ties</strong></li>
+                    <li>High roll wins initiative</li>
+                </ul>
+
+                <h3>Step 3: Winner Chooses Battlefield</h3>
+                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                    <li>Initiative winner declares which friendly sector will be attacking which adjacent enemy sector (paradrops excepted)</li>
+                    <li><strong>Important:</strong> If the attacker loses the battle, they lose the sector they attacked FROM</li>
+                </ul>
+
+                <h3>Step 4: Build Your Forces</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                    Build any force you want. You can use the Force Parity Procedure to balance the scenario.
+                </p>
+
+                <h3>Step 5: Meet & Reveal Forces</h3>
+                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                    <li>Show each other your forces</li>
+                    <li>Count vehicle teams (tanks, half-tracks, armored cars, etc.)</li>
+                    <li><strong>Player with more vehicles = Scenario Attacker</strong></li>
+                    <li>If tied, initiative winner chooses</li>
+                    <li><strong>Check coin totals:</strong> Each player announces how many rerolls they have (coins ÷ 4)</li>
+                </ul>
+
+                <h3>Step 6: Calculate Modifiers</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">See "Breakpoint Modifiers" section below</p>
+
+                <h3>Step 7: Play the Game</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">Standard Hail of Fire game using chosen forces</p>
+
+                <h3>Step 8: Resolve Sector Control</h3>
+                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                    <li>Winner captures the loser's sector</li>
+                    <li><strong>Exception:</strong> Landing sectors (Utah, Omaha, Gold, Juno, Sword) cannot be captured by Axis - if Axis would capture a landing sector, no sector changes hands</li>
+                    <li>Update store map immediately (move pins)</li>
+                </ul>
+
+                <h3>Step 9: Report Results</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 0.5rem;">Both players post to Discord:</p>
+                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                    <li>[SECTOR NAME/CODE] - [Winner] defeats [Loser]</li>
+                    <li>Initiative: [Who won roll-off]</li>
+                    <li>Attack: [Sector attacked] FROM [Sector attacked from]</li>
+                    <li>Result: [Which sector changed hands]</li>
+                    <li>Modifiers: [list adjacency/supply/terrain]</li>
+                    <li>@opponent (confirm with 👍 emoji)</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2>Map Mechanics</h2>
+
+                <h3>Sector Control - Starting Positions</h3>
+                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                    <li><strong>Allied starting sectors:</strong> Utah, Omaha, Gold, Juno, Sword (5 landing sectors)</li>
+                    <li><strong>German starting sectors:</strong> All other sectors on the map</li>
+                    <li>Most of the map begins under German control</li>
+                </ul>
+
+                <h3>Adjacency Bonuses (Attacker Only)</h3>
+                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                    <li><strong>+1 Breakpoint</strong> for each additional friendly sector bordering the target after the first (the sector you're attacking from)</li>
+                    <li><strong>Maximum +2 Breakpoint</strong> (even if you control more sectors)</li>
+                </ul>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                    <strong>Example:</strong> Allies attack Caen from E2. Caen has 6 bordering sectors total. Allies control E1, E2, E3, and E4 (3 additional sectors). Allied adjacency bonus would be +3, capped at <strong>+2 BP</strong>. German adjacency bonus: 0 BP (defender never receives adjacency bonus).
+                </p>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                    <strong>Strategic Note:</strong> Controlling 2+ sectors around a target maximizes your adjacency bonus. Beyond that, additional sectors don't increase BP but may serve other strategic purposes (cutting supply, opening new attack routes).
+                </p>
+
+                <h3>Supply Lines</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 0.5rem;">
+                    A sector is <strong>supplied</strong> if the shortest path to a supply source uses only friendly sectors.
+                </p>
+                <p style="color: var(--text-secondary); margin-bottom: 0.5rem;"><strong>Supply Sources:</strong></p>
+                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                    <li><strong>Allied:</strong> Utah, Omaha, Gold, Juno, Sword, or captured paradrop sectors</li>
+                    <li><strong>Axis:</strong> C7, D8, or E9</li>
+                </ul>
+                <p style="color: var(--text-secondary); margin-bottom: 0.5rem;"><strong>How to Check:</strong></p>
+                <ol style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                    <li>Count sectors to your nearest supply source</li>
+                    <li>If multiple paths tie for shortest, you only need ONE of them to be all friendly</li>
+                    <li>That shortest route must be all friendly sectors - longer routes don't count</li>
+                </ol>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                    <strong>Unsupplied Penalty:</strong> Reduce the Morale of all units by 1
+                </p>
+
+                <h3>Landing Sectors</h3>
+                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                    <li>Landing sectors: <strong>Utah, Omaha, Gold, Juno, Sword</strong> (the 5 Allied starting positions)</li>
+                    <li>Landing sectors always count as Allied supply sources</li>
+                    <li>If Axis win a battle where the Allied attack originated from a landing sector, the landing sector remains Allied</li>
+                    <li>Allies get <strong>+2 Breakpoints</strong> when fighting in landing sectors (attacking or defending)</li>
+                    <li>Landing sectors represent the permanent Allied beachhead and overwhelming naval/air superiority</li>
+                </ul>
+
+                <h3>Flooded Sectors</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                    If paradropping into flooded sector: <strong>-1 BP</strong> additional penalty
+                </p>
+
+                <h3>Terrain (Farmland, Bocage, City, Flooded)</h3>
+                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                    <li>Suggested terrain for your table setup, but not at all required</li>
+                    <li>Players may agree to house rules if desired</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2>Paradrop Rules</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">Allied players may conduct paradrops:</p>
+
+                <h3>Requirements</h3>
+                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                    <li>Win the initiative roll (1d6+1 vs opponent's 1d6)</li>
+                    <li>Choose any German sector NOT adjacent to Allied sectors</li>
+                    <li><strong>Choose an enemy-adjacent, non-landing Allied sector the attack originates from.</strong> That sector is captured if the paradrop fails</li>
+                </ul>
+
+                <h3>Restrictions</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                    <strong>No Vehicles</strong> - Infantry and light guns only
+                </p>
+
+                <h3>Flooded Sector Paradrop</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                    <strong>-1 Breakpoint</strong> penalty to Allies (difficult landing conditions)
+                </p>
+
+                <h3>Results</h3>
+                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                    <li><strong>Allied victory:</strong> Sector becomes Allied-controlled AND becomes an Allied supply source (like landing sectors)</li>
+                    <li><strong>German victory:</strong> Germans capture the Allied sector the paradrop originated from</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2>Breakpoint Modifiers</h2>
+                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                    <li><strong>Initiative Winner:</strong> +1 BP per additional friendly sector bordering the target (beyond sector attacking from), maximum +2 BP</li>
+                    <li><strong>Allies Only:</strong> Flat +2 BP if fighting from a landing sector (Utah, Omaha, Gold, Juno, Sword)</li>
+                    <li><strong>Flooded Sector Paradrop:</strong> -1 BP penalty to Allies (difficult landing conditions)</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2>Scoring System</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                    Coins track your campaign contribution and determine awards and prizes.
+                </p>
+
+                <h3>Coins (How to Earn)</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 0.5rem;"><strong>Playing Games:</strong></p>
+                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                    <li>Play a game and report it and post pictures on Discord: <strong>+1 coin</strong></li>
+                </ul>
+
+                <p style="color: var(--text-secondary); margin-bottom: 0.5rem;"><strong>Store Patronage Bonuses:</strong></p>
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 1rem;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid var(--olive);">
+                            <th style="text-align: left; padding: 0.5rem; color: var(--accent);">Action</th>
+                            <th style="text-align: center; padding: 0.5rem; color: var(--accent);">Coins</th>
+                        </tr>
+                    </thead>
+                    <tbody style="color: var(--text-secondary);">
+                        <tr style="border-bottom: 1px solid var(--bg-light);">
+                            <td style="padding: 0.5rem;">Every $30 spent at store during campaign</td>
+                            <td style="text-align: center; padding: 0.5rem;">+1 (repeatable)</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--bg-light);">
+                            <td style="padding: 0.5rem;">Paint/assemble models in store</td>
+                            <td style="text-align: center; padding: 0.5rem;">+1 per session</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--bg-light);">
+                            <td style="padding: 0.5rem;">Use newly purchased model in campaign game</td>
+                            <td style="text-align: center; padding: 0.5rem;">+2 (one-time)</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--bg-light);">
+                            <td style="padding: 0.5rem;">Bring a new player for their first Hail of Fire game</td>
+                            <td style="text-align: center; padding: 0.5rem;">+2</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--bg-light);">
+                            <td style="padding: 0.5rem;">If that new player joins campaign</td>
+                            <td style="text-align: center; padding: 0.5rem;">+2 additional (4 total)</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                    <strong>Important:</strong> Coins accumulate throughout entire campaign. Coins serve as raffle entries at campaign's end.
+                </p>
+            </div>
+
+            <div class="card">
+                <h2>Campaign Veteran Status</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                    As you participate in the campaign, your accumulated experience translates into in-game advantages.
+                </p>
+
+                <h3>How It Works</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                    <strong>For every 4 coins you've earned, you gain 1 reroll to use during a game.</strong>
+                </p>
+                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                    <li>Calculate: Total coins ÷ 4 (round down)</li>
+                    <li>Example: 10 coins = 2 rerolls available</li>
+                    <li>Example: 16 coins = 4 rerolls available</li>
+                </ul>
+
+                <h3>Using Rerolls</h3>
+                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                    <li>Rerolls can be used <strong>at any point during the game</strong></li>
+                    <li>Apply to <strong>any single die roll</strong> (to-hit, damage, morale, etc.)</li>
+                    <li>You choose when to spend them</li>
+                    <li>All rerolls refresh each game (don't carry between games)</li>
+                </ul>
+                <p style="color: var(--text-secondary);">
+                    Announce your reroll count to your opponent before the game starts.
+                </p>
+            </div>
+
+            <div class="card">
+                <h2>Victory Conditions & Map Resets</h2>
+
+                <h3>Campaign Victory Occurs When</h3>
+                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                    <li>Allies control all 7 city sectors for 7 consecutive days, OR</li>
+                    <li><strong>Week 8 is reached</strong> (whoever controls more city sectors wins)</li>
+                </ul>
+
+                <h3>When Victory Happens</h3>
+                <ol style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                    <li>Winning side announced</li>
+                    <li>Final map photo posted with narrative conclusion</li>
+                </ol>
+
+                <h3>Map Reset (if needed before Week 8)</h3>
+                <ol style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                    <li>Keep all earned coins (they carry forward!)</li>
+                    <li>Reset map to starting positions</li>
+                    <li>Continue as "Season 2"</li>
+                    <li>Final raffle uses coins from ALL seasons</li>
+                </ol>
+            </div>
+
+            <div class="card">
+                <h2>Quick Reference</h2>
+
+                <h3>Game Sequence Checklist</h3>
+                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                    <li>☐ Schedule with opponent, determine who plays which side</li>
+                    <li>☐ Roll for initiative (Allied +1, wins ties)</li>
+                    <li>☐ Winner picks which sector is attacking which sector</li>
+                    <li>☐ Determine scenario attacker (vehicle count)</li>
+                    <li>☐ Check coin totals and announce rerolls (coins ÷ 4)</li>
+                    <li>☐ Calculate BP modifiers</li>
+                    <li>☐ Play game</li>
+                    <li>☐ Winner takes Loser's sector</li>
+                    <li>☐ Update map, post to Discord with photos</li>
+                </ul>
+
+                <h3>Breakpoint Modifiers Summary</h3>
+                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                    <li>Attacker: +1 BP per additional friendly sector bordering target (max +2)</li>
+                    <li>Allies: +2 BP in landing sectors (Utah, Omaha, Gold, Juno, Sword)</li>
+                    <li>Paradrops: Allies -1 BP if flooded</li>
+                    <li>Landing sectors cannot be captured by Axis</li>
+                </ul>
+
+                <h3>Unsupplied Penalty</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">Reduce Morale by 1</p>
+
+                <h3>Scoring Quick Math</h3>
+                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                    <li>Play game: +1 coin</li>
+                    <li>Purchase $30 at store: +1 coin (repeatable)</li>
+                    <li>Paint in store: +1 coin per session (max 3)</li>
+                    <li>Use new purchased unit: +2 coins (one-time)</li>
+                    <li>Bring new player: +2 coins (+2 more if they join)</li>
+                </ul>
             </div>
         </div>
 
@@ -1622,8 +2132,42 @@
 
             document.getElementById('allied-sectors').textContent = alliedCount;
             document.getElementById('axis-sectors').textContent = axisCount;
-            document.getElementById('total-games').textContent = campaignData.games.length;
+            document.getElementById('battles-fought').textContent = campaignData.games.length;
+
+            // Calculate campaign week
+            const campaignStart = campaignData.campaignStart || new Date().toISOString().split('T')[0];
+            const startDate = new Date(campaignStart);
+            const today = new Date();
+            const weekNum = Math.max(1, Math.ceil((today - startDate) / (7 * 24 * 60 * 60 * 1000)));
+            document.getElementById('header-week').textContent = Math.min(weekNum, 8);
         }
+
+        // Countdown timer
+        function updateCountdown() {
+            const campaignStart = campaignData.campaignStart || new Date().toISOString().split('T')[0];
+            const startDate = new Date(campaignStart);
+            // Campaign ends 8 weeks (56 days) after start
+            const endDate = new Date(startDate.getTime() + (56 * 24 * 60 * 60 * 1000));
+            const now = new Date();
+            const diff = endDate - now;
+
+            if (diff <= 0) {
+                document.getElementById('countdown-timer').textContent = 'CAMPAIGN ENDED';
+                return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            document.getElementById('countdown-timer').textContent =
+                `${days}d ${hours}h ${minutes}m ${seconds}s`;
+        }
+
+        // Start countdown timer
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
 
         function renderDashboard() {
             // City status
@@ -2367,8 +2911,10 @@ Allied: ${allied} | Axis: ${axis}
             const overlay = document.getElementById('sector-overlay');
             overlay.innerHTML = '';
 
-            const sectorList = document.getElementById('sector-list');
-            sectorList.innerHTML = '';
+            const cityControlList = document.getElementById('city-control-list');
+            cityControlList.innerHTML = '';
+
+            const cities = ['Cherbourg', 'Ste-Mere-Eglise', 'Carentan', 'Bayeux', 'Caen', 'Saint-Lo', 'Coutances'];
 
             for (const [code, def] of Object.entries(SECTOR_DEFINITIONS)) {
                 const ctrl = campaignData.sectors[code]?.controller || 'Axis';
@@ -2397,18 +2943,22 @@ Allied: ${allied} | Axis: ${axis}
                 }
 
                 overlay.appendChild(marker);
-
-                // Add to list (cities and landing only for brevity)
-                if (def.city || def.landing) {
-                    const item = document.createElement('div');
-                    item.innerHTML = `<span class="badge ${ctrl.toLowerCase()}">${code}</span> ${def.name}`;
-                    item.style.cursor = 'pointer';
-                    item.onclick = () => {
-                        if (!editMode) showSectorModal(code);
-                    };
-                    sectorList.appendChild(item);
-                }
             }
+
+            // Render city control list
+            cities.forEach(cityCode => {
+                const ctrl = campaignData.sectors[cityCode]?.controller || 'Axis';
+                const def = SECTOR_DEFINITIONS[cityCode];
+                const item = document.createElement('span');
+                item.className = `badge ${ctrl.toLowerCase()}`;
+                item.style.cursor = 'pointer';
+                item.style.margin = '2px';
+                item.textContent = def?.name || cityCode;
+                item.onclick = () => {
+                    if (!editMode) showSectorModal(cityCode);
+                };
+                cityControlList.appendChild(item);
+            });
         }
 
         // Drag functions
