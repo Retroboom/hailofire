@@ -1,0 +1,2579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hail of Fire: Operation Overlord Campaign Tracker</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <style>
+        :root {
+            --allied-color: #b22222;
+            --allied-light: #dc3545;
+            --axis-color: #1a1a1a;
+            --axis-light: #444444;
+            --bg-dark: #1a1a2e;
+            --bg-medium: #16213e;
+            --bg-light: #0f3460;
+            --text-primary: #eee;
+            --text-secondary: #aaa;
+            --accent: #c4a574;
+            --gold: #ffd700;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'American Typewriter', 'Courier New', Courier, monospace;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--bg-medium), var(--bg-light));
+            padding: 1rem 2rem;
+            border-bottom: 3px solid var(--accent);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        header h1 {
+            font-size: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        header h1 span {
+            color: var(--accent);
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 2rem;
+            font-size: 0.9rem;
+        }
+
+        .header-stat {
+            text-align: center;
+        }
+
+        .header-stat .value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-shadow: -0.5px -0.5px 0 #fff, 0.5px -0.5px 0 #fff, -0.5px 0.5px 0 #fff, 0.5px 0.5px 0 #fff;
+        }
+
+        .header-stat.allied .value { color: var(--allied-light); }
+        .header-stat.axis .value { color: var(--axis-light); }
+
+        nav {
+            background: var(--bg-medium);
+            padding: 0.5rem 1rem;
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        nav button {
+            background: var(--bg-light);
+            color: var(--text-primary);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        nav button:hover {
+            background: var(--accent);
+        }
+
+        nav button.active {
+            background: var(--accent);
+        }
+
+        main {
+            padding: 1rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background: var(--bg-medium);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .card h2 {
+            margin-bottom: 1rem;
+            color: var(--accent);
+            border-bottom: 1px solid var(--bg-light);
+            padding-bottom: 0.5rem;
+        }
+
+        .card h3 {
+            margin: 1rem 0 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        form label {
+            display: block;
+            margin-bottom: 0.25rem;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        form input, form select, form textarea {
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 0.75rem;
+            border: 1px solid var(--bg-light);
+            border-radius: 4px;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        form input:focus, form select:focus, form textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        button.secondary {
+            background: var(--bg-light);
+        }
+
+        button.allied {
+            background: var(--allied-color);
+        }
+
+        button.axis {
+            background: var(--axis-color);
+        }
+
+        button.danger {
+            background: #c0392b;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--bg-light);
+        }
+
+        th {
+            background: var(--bg-light);
+            color: var(--accent);
+        }
+
+        tr:hover {
+            background: rgba(233, 69, 96, 0.1);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .badge.allied {
+            background: var(--allied-color);
+        }
+
+        .badge.axis {
+            background: var(--axis-color);
+        }
+
+        .badge.gold {
+            background: var(--gold);
+            color: #333;
+        }
+
+        /* Map Styles */
+        .map-container {
+            position: relative;
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .map-container img {
+            width: 100%;
+            border-radius: 8px;
+        }
+
+        .sector-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .sector-marker {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0;
+            font-weight: bold;
+            transition: transform 0.2s, width 0.2s, height 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            transform: translate(-50%, -50%);
+        }
+
+        .sector-marker:hover {
+            transform: translate(-50%, -50%) scale(1.5);
+            z-index: 100;
+        }
+
+        .sector-marker:hover::after {
+            content: attr(data-code);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            white-space: nowrap;
+            margin-bottom: 4px;
+        }
+
+        .sector-marker.allied {
+            background: var(--allied-color);
+        }
+
+        .sector-marker.axis {
+            background: var(--axis-color);
+        }
+
+        .sector-marker.city {
+            width: 20px;
+            height: 20px;
+            border-color: var(--gold);
+            border-width: 3px;
+        }
+
+        .sector-marker.landing {
+            width: 20px;
+            height: 20px;
+            border-color: white;
+            border-width: 3px;
+            background: var(--allied-color) !important;
+        }
+
+        .sector-marker.dragging {
+            cursor: grabbing;
+            transform: translate(-50%, -50%) scale(1.8);
+            z-index: 1000;
+            opacity: 0.9;
+        }
+
+        .sector-marker.edit-mode {
+            cursor: grab;
+        }
+
+        .sector-marker.edit-mode:hover {
+            transform: translate(-50%, -50%) scale(1.5);
+        }
+
+        /* Position Editor */
+        .editor-controls {
+            background: var(--bg-dark);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .editor-controls.active {
+            border: 2px solid var(--accent);
+        }
+
+        .position-display {
+            font-family: 'Consolas', monospace;
+            background: var(--bg-light);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            display: inline-block;
+            margin-right: 1rem;
+        }
+
+        .code-output {
+            background: #1e1e1e;
+            border: 1px solid var(--bg-light);
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'Consolas', monospace;
+            font-size: 0.8rem;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre;
+            color: #9cdcfe;
+        }
+
+        .code-output .comment {
+            color: #6a9955;
+        }
+
+        .code-output .key {
+            color: #9cdcfe;
+        }
+
+        .code-output .string {
+            color: #ce9178;
+        }
+
+        .code-output .number {
+            color: #b5cea8;
+        }
+
+        /* Leaderboard */
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background: var(--bg-dark);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+
+        .leaderboard-rank {
+            font-size: 1.5rem;
+            font-weight: bold;
+            width: 50px;
+            color: var(--gold);
+        }
+
+        .leaderboard-info {
+            flex: 1;
+        }
+
+        .leaderboard-name {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .leaderboard-stats {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .leaderboard-coins {
+            text-align: right;
+        }
+
+        .leaderboard-coins .coins {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--gold);
+        }
+
+        .leaderboard-coins .rerolls {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* Discord Output */
+        .discord-output {
+            background: #36393f;
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'Consolas', monospace;
+            white-space: pre-wrap;
+            font-size: 0.9rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .header-stats {
+                justify-content: center;
+            }
+
+            nav {
+                justify-content: center;
+            }
+        }
+
+        /* Utility */
+        .mt-1 { margin-top: 1rem; }
+        .mb-1 { margin-bottom: 1rem; }
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .flex { display: flex; }
+        .gap-1 { gap: 1rem; }
+        .flex-wrap { flex-wrap: wrap; }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .action-buttons button {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-medium);
+            padding: 2rem;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .modal-close {
+            background: none;
+            font-size: 1.5rem;
+            padding: 0;
+        }
+
+        .coin-reason-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .coin-reason-btn {
+            padding: 0.5rem;
+            font-size: 0.85rem;
+            text-align: center;
+        }
+
+        .coin-reason-btn.selected {
+            background: var(--accent);
+        }
+
+        /* Admin Mode Styles */
+        .admin-only {
+            display: none;
+        }
+
+        body.admin-mode .admin-only {
+            display: block;
+        }
+
+        body.admin-mode .admin-only-inline {
+            display: inline;
+        }
+
+        body.admin-mode .admin-only-flex {
+            display: flex;
+        }
+
+        .admin-badge {
+            background: var(--gold);
+            color: #000;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            margin-left: 0.5rem;
+        }
+
+        .pending-badge {
+            background: #f59e0b;
+            color: #000;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        .pending-game {
+            border-left: 3px solid #f59e0b;
+            opacity: 0.8;
+        }
+
+        .sync-status {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            margin-left: 1rem;
+        }
+
+        .sync-status.connected {
+            background: #22c55e;
+            color: #000;
+        }
+
+        .sync-status.disconnected {
+            background: #ef4444;
+            color: #fff;
+        }
+
+        .sync-status.syncing {
+            background: #f59e0b;
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+            <h1>Hail of Fire: <span>Operation Overlord</span></h1>
+            <span class="admin-badge admin-only-inline" style="display: none;">ADMIN</span>
+            <span class="sync-status" id="sync-status">Connecting...</span>
+        </div>
+        <div class="header-stats">
+            <div class="header-stat allied">
+                <div class="value" id="allied-sectors">5</div>
+                <div>Allied Sectors</div>
+            </div>
+            <div class="header-stat">
+                <div class="value" id="total-games">0</div>
+                <div>Games Played</div>
+            </div>
+            <div class="header-stat axis">
+                <div class="value" id="axis-sectors">45</div>
+                <div>Axis Sectors</div>
+            </div>
+        </div>
+    </header>
+
+    <nav>
+        <button class="active" data-tab="dashboard">Dashboard</button>
+        <button data-tab="map">Campaign Map</button>
+        <button data-tab="players">Players</button>
+        <button data-tab="games">Games</button>
+        <button data-tab="coins">Coins</button>
+        <button data-tab="submit">Submit Game</button>
+        <button data-tab="admin">Admin</button>
+        <button data-tab="data" class="admin-only" style="display: none;">Import/Export</button>
+    </nav>
+
+    <main>
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <div class="grid-2">
+                <div class="card">
+                    <h2>Campaign Status</h2>
+                    <div class="grid-2">
+                        <div>
+                            <h3>Allied Cities</h3>
+                            <div style="font-size: 2rem; color: var(--allied-light);" id="allied-cities">0</div>
+                            <div style="color: var(--text-secondary);">of 7 needed to win</div>
+                        </div>
+                        <div>
+                            <h3>Axis Cities</h3>
+                            <div style="font-size: 2rem; color: var(--axis-light);" id="axis-cities">7</div>
+                            <div style="color: var(--text-secondary);">currently held</div>
+                        </div>
+                    </div>
+                    <h3>City Control</h3>
+                    <div id="city-status"></div>
+                </div>
+
+                <div class="card">
+                    <h2>Leaderboard (Top 5)</h2>
+                    <div id="top-players"></div>
+                    <button class="secondary mt-1" data-tab="players">View All Players</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Recent Games</h2>
+                <div id="recent-games"></div>
+            </div>
+
+            <div class="card">
+                <h2>Quick Actions</h2>
+                <div class="flex gap-1 flex-wrap">
+                    <button onclick="switchTab('submit')">Submit Game Result</button>
+                    <button class="admin-only" onclick="showNewGameModal()" style="display: none;">Record Game (Admin)</button>
+                    <button class="admin-only secondary" onclick="showAddPlayerModal()" style="display: none;">Add Player</button>
+                    <button class="admin-only secondary" onclick="showAddCoinsModal()" style="display: none;">Award Coins</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Map Tab -->
+        <div id="map" class="tab-content">
+            <div class="card">
+                <h2>Campaign Map</h2>
+
+                <!-- Position Editor Controls (hidden) -->
+                <div class="editor-controls" id="editor-controls" style="display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                        <div>
+                            <button id="toggle-edit-btn" onclick="toggleEditMode()">Enable Position Editor</button>
+                            <span id="edit-mode-status" style="margin-left: 1rem; color: var(--text-secondary);">Edit mode: OFF</span>
+                        </div>
+                        <div id="current-position" style="display: none;">
+                            <span class="position-display">
+                                <strong id="selected-sector">-</strong>:
+                                x: <span id="pos-x">-</span>%,
+                                y: <span id="pos-y">-</span>%
+                            </span>
+                        </div>
+                    </div>
+                    <p style="color: var(--text-secondary); margin-top: 0.5rem; font-size: 0.85rem;" id="edit-instructions" style="display: none;">
+                        Drag markers to reposition. When done, click "Export Positions" to get the code.
+                    </p>
+                </div>
+
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;" id="map-legend">
+                    Click on a sector to view details or change control.
+                    <span class="badge allied">Red = Allied</span>
+                    <span class="badge axis">Black = Axis</span>
+                </p>
+                <div class="map-container" id="map-container">
+                    <img src="mapv3.jpg" alt="Campaign Map" id="campaign-map">
+                    <div class="sector-overlay" id="sector-overlay"></div>
+                </div>
+                <div class="mt-1">
+                    <h3>Sector Legend</h3>
+                    <div id="sector-list" class="grid-3 mt-1"></div>
+                </div>
+            </div>
+
+            <!-- Export Panel (hidden by default) -->
+            <div class="card" id="export-panel" style="display: none;">
+                <h2>Export Sector Positions</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                    Copy the code below and paste it into the HTML file to save your position changes.
+                    Replace the entire <code>SECTOR_DEFINITIONS</code> object (around line 813).
+                </p>
+                <div class="flex gap-1 mb-1">
+                    <button onclick="copyPositionsCode()">Copy Code to Clipboard</button>
+                    <button class="secondary" onclick="resetPositions()">Reset to Defaults</button>
+                </div>
+                <div class="code-output" id="positions-code"></div>
+            </div>
+        </div>
+
+        <!-- Players Tab -->
+        <div id="players" class="tab-content">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2 style="margin: 0; border: none; padding: 0;">Player Roster</h2>
+                    <button class="admin-only" onclick="showAddPlayerModal()" style="display: none;">Add Player</button>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table id="players-table">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Player</th>
+                                <th>Side</th>
+                                <th>Coins</th>
+                                <th>Rerolls</th>
+                                <th>Games</th>
+                                <th>Wins</th>
+                                <th>Win %</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Games Tab -->
+        <div id="games" class="tab-content">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2 style="margin: 0; border: none; padding: 0;">Game History</h2>
+                    <button class="admin-only" onclick="showNewGameModal()" style="display: none;">Record New Game</button>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table id="games-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Date</th>
+                                <th>Allied Player</th>
+                                <th>Axis Player</th>
+                                <th>Battle</th>
+                                <th>Winner</th>
+                                <th>Result</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Coins Tab -->
+        <div id="coins" class="tab-content">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2 style="margin: 0; border: none; padding: 0;">Coin Transactions</h2>
+                    <button class="admin-only" onclick="showAddCoinsModal()" style="display: none;">Award Coins</button>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table id="coins-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Date</th>
+                                <th>Player</th>
+                                <th>Coins</th>
+                                <th>Reason</th>
+                                <th>Notes</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Coin Earning Reference</h2>
+                <table>
+                    <tr><td>Play a game (report with photos)</td><td class="text-right"><strong>+1 coin</strong></td></tr>
+                    <tr><td>Store purchase ($30+)</td><td class="text-right"><strong>+1 coin</strong> (repeatable)</td></tr>
+                    <tr><td>Paint/assemble in store</td><td class="text-right"><strong>+1 coin</strong> per session</td></tr>
+                    <tr><td>Use newly purchased unit</td><td class="text-right"><strong>+2 coins</strong> (one-time)</td></tr>
+                    <tr><td>Bring a new player</td><td class="text-right"><strong>+2 coins</strong></td></tr>
+                    <tr><td>New player joins campaign</td><td class="text-right"><strong>+2 coins</strong> (additional)</td></tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Data Tab -->
+        <div id="data" class="tab-content">
+            <div class="grid-2">
+                <div class="card">
+                    <h2>Export Data</h2>
+                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                        Download all campaign data as a JSON file for backup or sharing.
+                    </p>
+                    <button onclick="exportData()">Download Campaign Data</button>
+                </div>
+
+                <div class="card">
+                    <h2>Import Data</h2>
+                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                        Load campaign data from a previously exported JSON file.
+                    </p>
+                    <input type="file" id="import-file" accept=".json" style="margin-bottom: 1rem;">
+                    <button onclick="importData()">Import Campaign Data</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Discord Integration</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                    Connect to Discord to post game results and campaign updates to your server.
+                </p>
+                <label>Webhook URL</label>
+                <input type="text" id="discord-webhook" placeholder="https://discord.com/api/webhooks/..." style="margin-bottom: 0.5rem;">
+                <p style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 1rem;">
+                    To get a webhook URL: Server Settings → Integrations → Webhooks → New Webhook
+                </p>
+                <div class="flex gap-1 flex-wrap">
+                    <button onclick="saveWebhook()">Save Webhook</button>
+                    <button class="secondary" onclick="testWebhook()">Test Connection</button>
+                    <button class="secondary" onclick="postStandings()">Post Current Standings</button>
+                </div>
+                <div id="webhook-status" style="margin-top: 0.5rem;"></div>
+            </div>
+
+            <div class="card">
+                <h2>Reset Campaign</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                    Reset the map to starting positions (keeps players and coins for Season 2).
+                </p>
+                <button class="danger" onclick="resetMap()">Reset Map Only</button>
+                <button class="danger" onclick="resetAll()" style="margin-left: 0.5rem;">Reset Everything</button>
+            </div>
+        </div>
+
+        <!-- Submit Game Tab (for players) -->
+        <div id="submit" class="tab-content">
+            <div class="card">
+                <h2>Submit Game Result</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                    Submit your game result for admin approval. Your submission will be reviewed before updating the campaign map.
+                </p>
+                <form onsubmit="submitGameForApproval(event)">
+                    <div class="grid-2">
+                        <div>
+                            <label>Date</label>
+                            <input type="date" id="submit-game-date" required>
+                        </div>
+                        <div>
+                            <label>Your Name</label>
+                            <input type="text" id="submit-player-name" required placeholder="Enter your name">
+                        </div>
+                    </div>
+
+                    <div class="grid-2">
+                        <div>
+                            <label>Allied Player</label>
+                            <input type="text" id="submit-allied-player" required>
+                        </div>
+                        <div>
+                            <label>Axis Player</label>
+                            <input type="text" id="submit-axis-player" required>
+                        </div>
+                    </div>
+
+                    <div class="grid-2">
+                        <div>
+                            <label>Initiative Winner</label>
+                            <select id="submit-initiative" required>
+                                <option value="">Select...</option>
+                                <option value="Allied">Allied</option>
+                                <option value="Axis">Axis</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Winner</label>
+                            <select id="submit-winner" required>
+                                <option value="">Select...</option>
+                                <option value="Allied">Allied</option>
+                                <option value="Axis">Axis</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid-2">
+                        <div>
+                            <label>Attacking From Sector</label>
+                            <select id="submit-from-sector" required>
+                                <option value="">Select sector...</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Attacking To Sector</label>
+                            <select id="submit-to-sector" required>
+                                <option value="">Select sector...</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <label>Notes (optional)</label>
+                    <textarea id="submit-notes" rows="2" placeholder="Any additional details about the game..."></textarea>
+
+                    <button type="submit" style="margin-top: 1rem;">Submit for Approval</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2>Your Pending Submissions</h2>
+                <div id="my-pending-games">
+                    <p style="color: var(--text-secondary);">No pending submissions.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Tab -->
+        <div id="admin" class="tab-content">
+            <div class="card">
+                <h2>Admin Login</h2>
+                <div id="admin-login-section">
+                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                        Enter the admin password to access campaign management features.
+                    </p>
+                    <input type="password" id="admin-password" placeholder="Enter admin password" style="margin-bottom: 0.5rem;">
+                    <button onclick="loginAdmin()">Login</button>
+                    <div id="admin-login-status" style="margin-top: 0.5rem;"></div>
+                </div>
+                <div id="admin-logged-in" style="display: none;">
+                    <p style="color: #22c55e; margin-bottom: 1rem;">Logged in as Admin</p>
+                    <button class="secondary" onclick="logoutAdmin()">Logout</button>
+                </div>
+            </div>
+
+            <div class="card" id="pending-games-card" style="display: none;">
+                <h2>Pending Game Submissions <span class="pending-badge" id="pending-count">0</span></h2>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                    Review and approve game submissions from players.
+                </p>
+                <div id="pending-games-list">
+                    <p style="color: var(--text-secondary);">No pending games.</p>
+                </div>
+            </div>
+
+            <div class="card" id="admin-actions-card" style="display: none;">
+                <h2>Admin Actions</h2>
+                <div class="flex gap-1 flex-wrap">
+                    <button onclick="showNewGameModal()">Record Game Directly</button>
+                    <button onclick="showAddPlayerModal()">Add Player</button>
+                    <button onclick="showAddCoinsModal()">Award Coins</button>
+                </div>
+            </div>
+
+            <div class="card" id="set-password-card" style="display: none;">
+                <h2>Change Admin Password</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                    Set a new admin password for the campaign.
+                </p>
+                <input type="password" id="new-admin-password" placeholder="New password" style="margin-bottom: 0.5rem;">
+                <input type="password" id="confirm-admin-password" placeholder="Confirm password" style="margin-bottom: 0.5rem;">
+                <button onclick="setAdminPassword()">Set Password</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add Player Modal -->
+    <div class="modal" id="add-player-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add Player</h2>
+                <button class="modal-close" onclick="closeModal('add-player-modal')">&times;</button>
+            </div>
+            <form onsubmit="addPlayer(event)">
+                <label>Player Name</label>
+                <input type="text" id="player-name" required>
+
+                <label>Declared Side</label>
+                <select id="player-side" required>
+                    <option value="Allied">Allied</option>
+                    <option value="Axis">Axis</option>
+                </select>
+
+                <button type="submit">Add Player</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- New Game Modal -->
+    <div class="modal" id="new-game-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Record New Game</h2>
+                <button class="modal-close" onclick="closeModal('new-game-modal')">&times;</button>
+            </div>
+            <form onsubmit="recordGame(event)">
+                <div class="grid-2">
+                    <div>
+                        <label>Allied Player</label>
+                        <select id="game-allied-player" required></select>
+                    </div>
+                    <div>
+                        <label>Axis Player</label>
+                        <select id="game-axis-player" required></select>
+                    </div>
+                </div>
+
+                <label>Date</label>
+                <input type="date" id="game-date" required>
+
+                <label>Initiative Winner</label>
+                <select id="game-initiative" required>
+                    <option value="Allied">Allied</option>
+                    <option value="Axis">Axis</option>
+                </select>
+
+                <div class="grid-2">
+                    <div>
+                        <label>Attacking From (Sector)</label>
+                        <select id="game-from-sector" required></select>
+                    </div>
+                    <div>
+                        <label>Attacking (Target Sector)</label>
+                        <select id="game-to-sector" required></select>
+                    </div>
+                </div>
+
+                <label>Winner</label>
+                <select id="game-winner" required>
+                    <option value="Allied">Allied</option>
+                    <option value="Axis">Axis</option>
+                </select>
+
+                <label>Notes (optional)</label>
+                <textarea id="game-notes" rows="2"></textarea>
+
+                <button type="submit">Record Game</button>
+            </form>
+
+            <div class="mt-1">
+                <h3>Discord Post</h3>
+                <div class="discord-output" id="discord-preview">
+                    Fill out the form to generate Discord post...
+                </div>
+                <button class="secondary mt-1" onclick="copyDiscordPost()">Copy to Clipboard</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Coins Modal -->
+    <div class="modal" id="add-coins-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Award Coins</h2>
+                <button class="modal-close" onclick="closeModal('add-coins-modal')">&times;</button>
+            </div>
+            <form onsubmit="addCoins(event)">
+                <label>Player</label>
+                <select id="coin-player" required></select>
+
+                <label>Reason</label>
+                <div class="coin-reason-grid">
+                    <button type="button" class="coin-reason-btn secondary" data-reason="Game Played" data-coins="1">Game Played (+1)</button>
+                    <button type="button" class="coin-reason-btn secondary" data-reason="Store Purchase" data-coins="1">Store Purchase (+1)</button>
+                    <button type="button" class="coin-reason-btn secondary" data-reason="Paint Session" data-coins="1">Paint Session (+1)</button>
+                    <button type="button" class="coin-reason-btn secondary" data-reason="New Unit Used" data-coins="2">New Unit Used (+2)</button>
+                    <button type="button" class="coin-reason-btn secondary" data-reason="Brought New Player" data-coins="2">Brought Player (+2)</button>
+                    <button type="button" class="coin-reason-btn secondary" data-reason="New Player Joined" data-coins="2">Player Joined (+2)</button>
+                </div>
+
+                <input type="hidden" id="coin-reason" required>
+
+                <label>Coins</label>
+                <input type="number" id="coin-amount" min="1" value="1" required>
+
+                <label>Notes (optional)</label>
+                <input type="text" id="coin-notes">
+
+                <button type="submit">Award Coins</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Sector Modal -->
+    <div class="modal" id="sector-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="sector-modal-title">Sector Details</h2>
+                <button class="modal-close" onclick="closeModal('sector-modal')">&times;</button>
+            </div>
+            <div id="sector-modal-content"></div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // FIREBASE CONFIGURATION
+        // ============================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyDmNY1Vh1ats1Jrfg8XHsz8ktetymbZl10",
+            authDomain: "hailoffire-campaign.firebaseapp.com",
+            databaseURL: "https://hailoffire-campaign-default-rtdb.firebaseio.com",
+            projectId: "hailoffire-campaign",
+            storageBucket: "hailoffire-campaign.firebasestorage.app",
+            messagingSenderId: "897752919640",
+            appId: "1:897752919640:web:225c751b0f3c0c9dd4642d"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // ============================================
+        // STATE MANAGEMENT
+        // ============================================
+
+        // Campaign Data Structure
+        let campaignData = {
+            players: [],
+            games: [],
+            coins: [],
+            sectors: {},
+            pendingGames: []
+        };
+
+        // Admin state (stored locally, not in Firebase)
+        let isAdmin = false;
+        const ADMIN_PASSWORD_HASH_KEY = 'hofc-admin-hash';
+
+        // Simple hash function for password (not cryptographically secure, but good enough for this use case)
+        async function hashPassword(password) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(password + 'hailoffire-salt');
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        // ============================================
+        // FIREBASE DATA SYNC
+        // ============================================
+
+        function setupFirebaseListeners() {
+            const statusEl = document.getElementById('sync-status');
+
+            // Connection state
+            database.ref('.info/connected').on('value', (snap) => {
+                if (snap.val() === true) {
+                    statusEl.textContent = 'Connected';
+                    statusEl.className = 'sync-status connected';
+                } else {
+                    statusEl.textContent = 'Offline';
+                    statusEl.className = 'sync-status disconnected';
+                }
+            });
+
+            // Listen for campaign data changes
+            database.ref('campaign').on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    campaignData.players = data.players ? Object.values(data.players) : [];
+                    campaignData.games = data.games ? Object.values(data.games) : [];
+                    campaignData.coins = data.coins ? Object.values(data.coins) : [];
+                    campaignData.sectors = data.sectors || {};
+                } else {
+                    // Initialize default data if none exists
+                    initializeSectors();
+                    saveToFirebase();
+                }
+                renderAll();
+            });
+
+            // Listen for pending games (for admin review)
+            database.ref('pendingGames').on('value', (snapshot) => {
+                const data = snapshot.val();
+                campaignData.pendingGames = data ? Object.entries(data).map(([key, val]) => ({ ...val, firebaseKey: key })) : [];
+                renderPendingGames();
+                updatePendingCount();
+            });
+
+            // Listen for admin password hash (to verify against)
+            database.ref('config/adminPasswordHash').on('value', (snapshot) => {
+                window.storedAdminHash = snapshot.val();
+            });
+        }
+
+        function saveToFirebase() {
+            const dataToSave = {
+                players: {},
+                games: {},
+                coins: {},
+                sectors: campaignData.sectors
+            };
+
+            // Convert arrays to objects with IDs as keys
+            campaignData.players.forEach((p, i) => {
+                dataToSave.players[p.name.replace(/[.#$\/\[\]]/g, '_')] = p;
+            });
+            campaignData.games.forEach((g, i) => {
+                dataToSave.games['game_' + g.id] = g;
+            });
+            campaignData.coins.forEach((c, i) => {
+                dataToSave.coins['coin_' + i] = c;
+            });
+
+            database.ref('campaign').set(dataToSave);
+        }
+
+        // Sector definitions
+        // SECTOR_DEFINITIONS: x and y are percentages from top-left of map image
+        // To adjust positions: open the HTML, use browser dev tools, and tweak x/y values
+        const SECTOR_DEFINITIONS = {
+            // Landing sectors (Allied start)
+            'Utah': { name: 'Utah Beach', type: 'Beach', landing: true, city: false, flooded: false, x: 37.8, y: 38.1 },
+            'Omaha': { name: 'Omaha Beach', type: 'Beach', landing: true, city: false, flooded: false, x: 53.4, y: 46.7 },
+            'Gold': { name: 'Gold Beach', type: 'Beach', landing: true, city: false, flooded: false, x: 68.7, y: 52.2 },
+            'Juno': { name: 'Juno Beach', type: 'Beach', landing: true, city: false, flooded: false, x: 78.1, y: 53 },
+            'Sword': { name: 'Sword Beach', type: 'Beach', landing: true, city: false, flooded: false, x: 84.1, y: 56.7 },
+
+            // Cities
+            'Cherbourg': { name: 'Cherbourg', type: 'City', landing: false, city: true, flooded: false, x: 20.8, y: 16.3 },
+            'Ste-Mere-Eglise': { name: 'Sainte-Mere-Eglise', type: 'City', landing: false, city: true, flooded: false, x: 29.4, y: 31.5 },
+            'Carentan': { name: 'Carentan', type: 'City', landing: false, city: true, flooded: false, x: 35.6, y: 48.3 },
+            'Bayeux': { name: 'Bayeux', type: 'City', landing: false, city: true, flooded: false, x: 61.9, y: 58.7 },
+            'Caen': { name: 'Caen', type: 'City', landing: false, city: true, flooded: false, x: 81.7, y: 70.1 },
+            'Saint-Lo': { name: 'Saint-Lo', type: 'City', landing: false, city: true, flooded: false, x: 48.3, y: 78.8 },
+            'Coutances': { name: 'Coutances', type: 'City', landing: false, city: true, flooded: false, x: 26.2, y: 78.2 },
+
+            // Row A
+            'A1': { name: 'Sector A1', type: 'Bocage', landing: false, city: false, flooded: false, x: 11, y: 10.6 },
+            'A2': { name: 'Sector A2', type: 'Bocage', landing: false, city: false, flooded: false, x: 31.9, y: 10.2 },
+            'A3': { name: 'Sector A3', type: 'Flooded', landing: false, city: false, flooded: true, x: 10, y: 24.1 },
+            'A4': { name: 'Sector A4', type: 'Flooded', landing: false, city: false, flooded: true, x: 17.3, y: 21.6 },
+            'A5': { name: 'Sector A5', type: 'Bocage', landing: false, city: false, flooded: false, x: 25.8, y: 24.3 },
+            'A6': { name: 'Sector A6', type: 'Bocage', landing: false, city: false, flooded: false, x: 33.9, y: 28.7 },
+            'A7': { name: 'Sector A7', type: 'Bocage', landing: false, city: false, flooded: false, x: 19.1, y: 34.4 },
+            'A8': { name: 'Sector A8', type: 'Bocage', landing: false, city: false, flooded: false, x: 27.8, y: 36 },
+            'A9': { name: 'Sector A9', type: 'Bocage', landing: false, city: false, flooded: false, x: 36, y: 42.2 },
+
+            // Row B
+            'B1': { name: 'Sector B1', type: 'Bocage', landing: false, city: false, flooded: false, x: 28, y: 48 },
+            'B2': { name: 'Sector B2', type: 'Flooded', landing: false, city: false, flooded: true, x: 38.9, y: 49.7 },
+            'B3': { name: 'Sector B3', type: 'Flooded', landing: false, city: false, flooded: true, x: 22.6, y: 57.5 },
+            'B4': { name: 'Sector B4', type: 'Farmland', landing: false, city: false, flooded: false, x: 33.4, y: 57.6 },
+            'B5': { name: 'Sector B5', type: 'Bocage', landing: false, city: false, flooded: false, x: 23.2, y: 67.2 },
+            'B6': { name: 'Sector B6', type: 'Bocage', landing: false, city: false, flooded: false, x: 32.7, y: 69.3 },
+            'B7': { name: 'Sector B7', type: 'Bocage', landing: false, city: false, flooded: false, x: 22.4, y: 77.8 },
+            'B8': { name: 'Sector B8', type: 'Bocage', landing: false, city: false, flooded: false, x: 30.4, y: 78.5 },
+            'B9': { name: 'Sector B9', type: 'Bocage', landing: false, city: false, flooded: false, x: 23.8, y: 87.2 },
+
+            // Row C
+            'C1': { name: 'Sector C1', type: 'Farmland', landing: false, city: false, flooded: false, x: 46.1, y: 57.6 },
+            'C2': { name: 'Sector C2', type: 'Farmland', landing: false, city: false, flooded: false, x: 55.1, y: 58.3 },
+            'C3': { name: 'Sector C3', type: 'Farmland', landing: false, city: false, flooded: false, x: 40.7, y: 68.5 },
+            'C4': { name: 'Sector C4', type: 'Farmland', landing: false, city: false, flooded: false, x: 52.7, y: 70.2 },
+            'C5': { name: 'Sector C5', type: 'Bocage', landing: false, city: false, flooded: false, x: 41.4, y: 83.3 },
+            'C6': { name: 'Sector C6', type: 'Bocage', landing: false, city: false, flooded: false, x: 50.6, y: 82.8 },
+            'C7': { name: 'Sector C7', type: 'Bocage', landing: false, city: false, flooded: false, x: 30.6, y: 90.9 },
+            'C8': { name: 'Sector C8', type: 'Bocage', landing: false, city: false, flooded: false, x: 44, y: 91.6 },
+            'C9': { name: 'Sector C9', type: 'Bocage', landing: false, city: false, flooded: false, x: 55.9, y: 86.1 },
+
+            // Row D
+            'D1': { name: 'Sector D1', type: 'Farmland', landing: false, city: false, flooded: false, x: 65.1, y: 54.7 },
+            'D2': { name: 'Sector D2', type: 'Farmland', landing: false, city: false, flooded: false, x: 71.9, y: 57.7 },
+            'D3': { name: 'Sector D3', type: 'Farmland', landing: false, city: false, flooded: false, x: 63.4, y: 62.9 },
+            'D4': { name: 'Sector D4', type: 'Farmland', landing: false, city: false, flooded: false, x: 63.3, y: 68.6 },
+            'D5': { name: 'Sector D5', type: 'Bocage', landing: false, city: false, flooded: false, x: 74.3, y: 70.1 },
+            'D6': { name: 'Sector D6', type: 'Bocage', landing: false, city: false, flooded: false, x: 61.8, y: 80.4 },
+            'D7': { name: 'Sector D7', type: 'Bocage', landing: false, city: false, flooded: false, x: 72, y: 80.3 },
+            'D8': { name: 'Sector D8', type: 'Bocage', landing: false, city: false, flooded: false, x: 59.6, y: 94.5 },
+            'D9': { name: 'Sector D9', type: 'Bocage', landing: false, city: false, flooded: false, x: 70.4, y: 92.4 },
+
+            // Row E
+            'E1': { name: 'Sector E1', type: 'Farmland', landing: false, city: false, flooded: false, x: 78.8, y: 58.6 },
+            'E2': { name: 'Sector E2', type: 'Farmland', landing: false, city: false, flooded: false, x: 84.1, y: 60.7 },
+            'E3': { name: 'Sector E3', type: 'Farmland', landing: false, city: false, flooded: false, x: 93.6, y: 59.4 },
+            'E4': { name: 'Sector E4', type: 'Farmland', landing: false, city: false, flooded: false, x: 90, y: 69.6 },
+            'E5': { name: 'Sector E5', type: 'Bocage', landing: false, city: false, flooded: false, x: 98.3, y: 71.2 },
+            'E6': { name: 'Sector E6', type: 'Bocage', landing: false, city: false, flooded: false, x: 83.7, y: 75.8 },
+            'E7': { name: 'Sector E7', type: 'Bocage', landing: false, city: false, flooded: false, x: 79.7, y: 82.8 },
+            'E8': { name: 'Sector E8', type: 'Bocage', landing: false, city: false, flooded: false, x: 92, y: 81.7 },
+            'E9': { name: 'Sector E9', type: 'Bocage', landing: false, city: false, flooded: false, x: 80.7, y: 91.5 }
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Use Firebase for data sync instead of localStorage
+            setupFirebaseListeners();
+            loadWebhook();
+            setupTabs();
+            setupModals();
+            updateAdminUI();
+            populateSubmitSectorSelects();
+
+            // Set today's date as default for forms
+            document.getElementById('game-date').valueAsDate = new Date();
+            document.getElementById('submit-game-date').valueAsDate = new Date();
+        });
+
+        // Tab Navigation
+        function setupTabs() {
+            document.querySelectorAll('nav button').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tab = btn.dataset.tab;
+                    if (tab) switchTab(tab);
+                });
+            });
+
+            // Also handle buttons with data-tab that aren't in nav
+            document.querySelectorAll('button[data-tab]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tab = btn.dataset.tab;
+                    if (tab) switchTab(tab);
+                });
+            });
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+
+            document.getElementById(tabId).classList.add('active');
+            document.querySelector(`nav button[data-tab="${tabId}"]`)?.classList.add('active');
+        }
+
+        // Modal Management
+        function setupModals() {
+            // Coin reason buttons
+            document.querySelectorAll('.coin-reason-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.coin-reason-btn').forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                    document.getElementById('coin-reason').value = btn.dataset.reason;
+                    document.getElementById('coin-amount').value = btn.dataset.coins;
+                });
+            });
+
+            // Game form change handlers for Discord preview
+            ['game-allied-player', 'game-axis-player', 'game-initiative', 'game-from-sector', 'game-to-sector', 'game-winner'].forEach(id => {
+                document.getElementById(id)?.addEventListener('change', updateDiscordPreview);
+            });
+        }
+
+        function showModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        function showAddPlayerModal() {
+            document.getElementById('player-name').value = '';
+            showModal('add-player-modal');
+        }
+
+        function showNewGameModal() {
+            populatePlayerSelects();
+            populateSectorSelects();
+            showModal('new-game-modal');
+        }
+
+        function showAddCoinsModal() {
+            populateCoinPlayerSelect();
+            document.querySelectorAll('.coin-reason-btn').forEach(b => b.classList.remove('selected'));
+            document.getElementById('coin-reason').value = '';
+            document.getElementById('coin-amount').value = '1';
+            document.getElementById('coin-notes').value = '';
+            showModal('add-coins-modal');
+        }
+
+        // Data Management
+        function loadData() {
+            const saved = localStorage.getItem('hofc-campaign-data');
+            if (saved) {
+                campaignData = JSON.parse(saved);
+            }
+
+            // Initialize sectors if empty
+            if (Object.keys(campaignData.sectors).length === 0) {
+                initializeSectors();
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('hofc-campaign-data', JSON.stringify(campaignData));
+        }
+
+        function initializeSectors() {
+            for (const [code, def] of Object.entries(SECTOR_DEFINITIONS)) {
+                campaignData.sectors[code] = {
+                    controller: def.landing ? 'Allied' : 'Axis'
+                };
+            }
+            saveToFirebase();
+        }
+
+        // Player Functions
+        function addPlayer(e) {
+            e.preventDefault();
+            const name = document.getElementById('player-name').value.trim();
+            const side = document.getElementById('player-side').value;
+
+            if (campaignData.players.find(p => p.name.toLowerCase() === name.toLowerCase())) {
+                alert('Player already exists!');
+                return;
+            }
+
+            campaignData.players.push({
+                name,
+                side,
+                joinDate: new Date().toISOString().split('T')[0]
+            });
+
+            saveToFirebase();
+            renderAll();
+            closeModal('add-player-modal');
+        }
+
+        function deletePlayer(name) {
+            if (!confirm(`Delete player "${name}"? This cannot be undone.`)) return;
+            campaignData.players = campaignData.players.filter(p => p.name !== name);
+            saveToFirebase();
+            renderAll();
+        }
+
+        function getPlayerStats(name) {
+            const coins = campaignData.coins
+                .filter(c => c.player === name)
+                .reduce((sum, c) => sum + c.amount, 0);
+
+            const gamesAsAllied = campaignData.games.filter(g => g.alliedPlayer === name);
+            const gamesAsAxis = campaignData.games.filter(g => g.axisPlayer === name);
+            const games = gamesAsAllied.length + gamesAsAxis.length;
+
+            const wins = gamesAsAllied.filter(g => g.winner === 'Allied').length +
+                        gamesAsAxis.filter(g => g.winner === 'Axis').length;
+
+            return {
+                coins,
+                rerolls: Math.floor(coins / 4),
+                games,
+                wins,
+                winRate: games > 0 ? Math.round((wins / games) * 100) : 0
+            };
+        }
+
+        // Game Functions
+        function recordGame(e) {
+            e.preventDefault();
+
+            const game = {
+                id: campaignData.games.length + 1,
+                date: document.getElementById('game-date').value,
+                alliedPlayer: document.getElementById('game-allied-player').value,
+                axisPlayer: document.getElementById('game-axis-player').value,
+                initiative: document.getElementById('game-initiative').value,
+                fromSector: document.getElementById('game-from-sector').value,
+                toSector: document.getElementById('game-to-sector').value,
+                winner: document.getElementById('game-winner').value,
+                notes: document.getElementById('game-notes').value
+            };
+
+            // Determine sector change
+            const loserSector = game.winner === game.initiative ? game.toSector : game.fromSector;
+            const loserDef = SECTOR_DEFINITIONS[loserSector];
+
+            // Landing sectors can't be captured by Axis
+            if (loserDef?.landing && game.winner === 'Axis') {
+                game.sectorChanged = null;
+                game.result = 'No change (Landing sector protected)';
+            } else {
+                game.sectorChanged = loserSector;
+                game.result = `${game.winner} captured ${loserSector}`;
+                campaignData.sectors[loserSector] = { controller: game.winner };
+            }
+
+            campaignData.games.push(game);
+
+            // Auto-award coins for playing
+            const alliedCoins = { player: game.alliedPlayer, amount: 1, reason: 'Game Played', date: game.date, gameId: game.id };
+            const axisCoins = { player: game.axisPlayer, amount: 1, reason: 'Game Played', date: game.date, gameId: game.id };
+            campaignData.coins.push(alliedCoins, axisCoins);
+
+            saveToFirebase();
+            renderAll();
+            closeModal('new-game-modal');
+
+            // Offer to post to Discord if webhook is configured
+            if (getWebhookUrl()) {
+                if (confirm('Game recorded! Post result to Discord?')) {
+                    postGameResult(game).then(result => {
+                        if (result.success) {
+                            alert('Posted to Discord!');
+                        } else {
+                            alert('Failed to post: ' + result.error);
+                        }
+                    });
+                }
+            }
+        }
+
+        function deleteGame(id) {
+            if (!confirm('Delete this game? This will NOT reverse sector changes.')) return;
+            campaignData.games = campaignData.games.filter(g => g.id !== id);
+            // Also remove associated coin transactions
+            campaignData.coins = campaignData.coins.filter(c => c.gameId !== id);
+            saveToFirebase();
+            renderAll();
+        }
+
+        // Coin Functions
+        function addCoins(e) {
+            e.preventDefault();
+
+            const coin = {
+                player: document.getElementById('coin-player').value,
+                amount: parseInt(document.getElementById('coin-amount').value),
+                reason: document.getElementById('coin-reason').value,
+                date: new Date().toISOString().split('T')[0],
+                notes: document.getElementById('coin-notes').value
+            };
+
+            if (!coin.reason) {
+                alert('Please select a reason');
+                return;
+            }
+
+            campaignData.coins.push(coin);
+            saveToFirebase();
+            renderAll();
+            closeModal('add-coins-modal');
+        }
+
+        function deleteCoin(index) {
+            if (!confirm('Delete this coin transaction?')) return;
+            campaignData.coins.splice(index, 1);
+            saveToFirebase();
+            renderAll();
+        }
+
+        // Sector Functions
+        function toggleSectorControl(code) {
+            const def = SECTOR_DEFINITIONS[code];
+            if (def?.landing) {
+                alert('Landing sectors cannot change control!');
+                return;
+            }
+
+            const current = campaignData.sectors[code]?.controller || 'Axis';
+            campaignData.sectors[code] = {
+                controller: current === 'Allied' ? 'Axis' : 'Allied'
+            };
+            saveToFirebase();
+            renderAll();
+        }
+
+        function showSectorModal(code) {
+            const def = SECTOR_DEFINITIONS[code];
+            const control = campaignData.sectors[code]?.controller || 'Axis';
+
+            document.getElementById('sector-modal-title').textContent = def.name;
+            document.getElementById('sector-modal-content').innerHTML = `
+                <p><strong>Code:</strong> ${code}</p>
+                <p><strong>Type:</strong> ${def.type}</p>
+                <p><strong>Controller:</strong> <span class="badge ${control.toLowerCase()}">${control}</span></p>
+                ${def.landing ? '<p><strong>Landing Sector:</strong> Yes (cannot be captured by Axis)</p>' : ''}
+                ${def.city ? '<p><strong>City:</strong> Yes (victory objective)</p>' : ''}
+                ${def.flooded ? '<p><strong>Flooded:</strong> Yes (-1 BP for paradrop)</p>' : ''}
+                <div class="mt-1">
+                    ${(!def.landing && isAdmin) ? `<button onclick="toggleSectorControl('${code}'); closeModal('sector-modal');" class="${control === 'Allied' ? 'axis' : 'allied'}">
+                        Change to ${control === 'Allied' ? 'Axis' : 'Allied'} Control
+                    </button>` : ''}
+                </div>
+            `;
+            showModal('sector-modal');
+        }
+
+        // Rendering Functions
+        function renderAll() {
+            renderHeader();
+            renderDashboard();
+            renderMap();
+            renderPlayers();
+            renderGames();
+            renderCoins();
+        }
+
+        function renderHeader() {
+            const alliedCount = Object.entries(campaignData.sectors)
+                .filter(([_, s]) => s.controller === 'Allied').length;
+            const axisCount = Object.keys(SECTOR_DEFINITIONS).length - alliedCount;
+
+            document.getElementById('allied-sectors').textContent = alliedCount;
+            document.getElementById('axis-sectors').textContent = axisCount;
+            document.getElementById('total-games').textContent = campaignData.games.length;
+        }
+
+        function renderDashboard() {
+            // City status
+            const cities = ['Cherbourg', 'Ste-Mere-Eglise', 'Carentan', 'Bayeux', 'Caen', 'Saint-Lo', 'Coutances'];
+            const alliedCities = cities.filter(c => campaignData.sectors[c]?.controller === 'Allied').length;
+            const axisCities = cities.length - alliedCities;
+
+            document.getElementById('allied-cities').textContent = alliedCities;
+            document.getElementById('axis-cities').textContent = axisCities;
+
+            document.getElementById('city-status').innerHTML = cities.map(c => {
+                const ctrl = campaignData.sectors[c]?.controller || 'Axis';
+                return `<span class="badge ${ctrl.toLowerCase()}" style="margin: 2px;">${c}</span>`;
+            }).join('');
+
+            // Top players
+            const players = campaignData.players
+                .map(p => ({ ...p, ...getPlayerStats(p.name) }))
+                .sort((a, b) => b.coins - a.coins)
+                .slice(0, 5);
+
+            document.getElementById('top-players').innerHTML = players.length === 0
+                ? '<p style="color: var(--text-secondary);">No players yet. Add players to get started!</p>'
+                : players.map((p, i) => `
+                    <div class="leaderboard-item">
+                        <div class="leaderboard-rank">#${i + 1}</div>
+                        <div class="leaderboard-info">
+                            <div class="leaderboard-name">${p.name}</div>
+                            <div class="leaderboard-stats">
+                                <span class="badge ${p.side.toLowerCase()}">${p.side}</span>
+                                ${p.games}G / ${p.wins}W (${p.winRate}%)
+                            </div>
+                        </div>
+                        <div class="leaderboard-coins">
+                            <div class="coins">${p.coins}</div>
+                            <div class="rerolls">${p.rerolls} rerolls</div>
+                        </div>
+                    </div>
+                `).join('');
+
+            // Recent games
+            const recent = campaignData.games.slice(-5).reverse();
+            document.getElementById('recent-games').innerHTML = recent.length === 0
+                ? '<p style="color: var(--text-secondary);">No games recorded yet.</p>'
+                : `<table>
+                    <tr><th>Date</th><th>Players</th><th>Result</th></tr>
+                    ${recent.map(g => `
+                        <tr>
+                            <td>${g.date}</td>
+                            <td>${g.alliedPlayer} vs ${g.axisPlayer}</td>
+                            <td><span class="badge ${g.winner.toLowerCase()}">${g.winner}</span> - ${g.result || 'N/A'}</td>
+                        </tr>
+                    `).join('')}
+                </table>`;
+        }
+
+        function renderPlayers() {
+            const tbody = document.querySelector('#players-table tbody');
+            const players = campaignData.players
+                .map(p => ({ ...p, ...getPlayerStats(p.name) }))
+                .sort((a, b) => b.coins - a.coins);
+
+            tbody.innerHTML = players.map((p, i) => `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td><strong>${p.name}</strong></td>
+                    <td><span class="badge ${p.side.toLowerCase()}">${p.side}</span></td>
+                    <td><strong style="color: var(--gold);">${p.coins}</strong></td>
+                    <td>${p.rerolls}</td>
+                    <td>${p.games}</td>
+                    <td>${p.wins}</td>
+                    <td>${p.winRate}%</td>
+                    <td>
+                        <div class="action-buttons">
+                            ${isAdmin ? `<button class="danger" onclick="deletePlayer('${p.name}')">Delete</button>` : '-'}
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderGames() {
+            const tbody = document.querySelector('#games-table tbody');
+            tbody.innerHTML = campaignData.games.slice().reverse().map(g => `
+                <tr>
+                    <td>${g.id}</td>
+                    <td>${g.date}</td>
+                    <td>${g.alliedPlayer}</td>
+                    <td>${g.axisPlayer}</td>
+                    <td>${g.fromSector} → ${g.toSector}</td>
+                    <td><span class="badge ${g.winner.toLowerCase()}">${g.winner}</span></td>
+                    <td>${g.result || 'N/A'}</td>
+                    <td>
+                        <div class="action-buttons">
+                            ${isAdmin ? `<button class="danger" onclick="deleteGame(${g.id})">Delete</button>` : '-'}
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderCoins() {
+            const tbody = document.querySelector('#coins-table tbody');
+            tbody.innerHTML = campaignData.coins.map((c, i) => `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td>${c.date}</td>
+                    <td>${c.player}</td>
+                    <td><strong style="color: var(--gold);">+${c.amount}</strong></td>
+                    <td>${c.reason}</td>
+                    <td>${c.notes || '-'}</td>
+                    <td>
+                        <div class="action-buttons">
+                            ${isAdmin ? `<button class="danger" onclick="deleteCoin(${i})">Delete</button>` : '-'}
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Populate Selects
+        function populatePlayerSelects() {
+            const alliedSelect = document.getElementById('game-allied-player');
+            const axisSelect = document.getElementById('game-axis-player');
+
+            const options = campaignData.players.map(p =>
+                `<option value="${p.name}">${p.name} (${p.side})</option>`
+            ).join('');
+
+            alliedSelect.innerHTML = '<option value="">Select player...</option>' + options;
+            axisSelect.innerHTML = '<option value="">Select player...</option>' + options;
+        }
+
+        function populateSectorSelects() {
+            const fromSelect = document.getElementById('game-from-sector');
+            const toSelect = document.getElementById('game-to-sector');
+
+            const options = Object.entries(SECTOR_DEFINITIONS)
+                .map(([code, def]) => {
+                    const ctrl = campaignData.sectors[code]?.controller || 'Axis';
+                    return `<option value="${code}">${code} - ${def.name} (${ctrl})</option>`;
+                }).join('');
+
+            fromSelect.innerHTML = '<option value="">Select sector...</option>' + options;
+            toSelect.innerHTML = '<option value="">Select sector...</option>' + options;
+        }
+
+        function populateCoinPlayerSelect() {
+            const select = document.getElementById('coin-player');
+            select.innerHTML = '<option value="">Select player...</option>' +
+                campaignData.players.map(p => `<option value="${p.name}">${p.name}</option>`).join('');
+        }
+
+        // Discord Integration
+        function updateDiscordPreview() {
+            const allied = document.getElementById('game-allied-player').value;
+            const axis = document.getElementById('game-axis-player').value;
+            const initiative = document.getElementById('game-initiative').value;
+            const from = document.getElementById('game-from-sector').value;
+            const to = document.getElementById('game-to-sector').value;
+            const winner = document.getElementById('game-winner').value;
+
+            if (!allied || !axis || !from || !to) {
+                document.getElementById('discord-preview').textContent = 'Fill out the form to generate Discord post...';
+                return;
+            }
+
+            const loser = winner === 'Allied' ? 'Axis' : 'Allied';
+            const loserSector = winner === initiative ? to : from;
+            const def = SECTOR_DEFINITIONS[loserSector];
+            const sectorResult = def?.landing && winner === 'Axis'
+                ? 'No change (Landing sector protected)'
+                : `${loserSector} → ${winner}`;
+
+            const post = `**[${to}]** - ${winner} defeats ${loser}
+Initiative: ${initiative} won roll-off
+Attack: ${to} FROM ${from}
+Result: ${sectorResult}
+Allied: ${allied} | Axis: ${axis}
+@opponent (confirm with 👍)`;
+
+            document.getElementById('discord-preview').textContent = post;
+        }
+
+        function copyDiscordPost() {
+            const text = document.getElementById('discord-preview').textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Copied to clipboard!');
+            });
+        }
+
+        // Discord Webhook Functions
+        function getWebhookUrl() {
+            return localStorage.getItem('hofc-discord-webhook') || '';
+        }
+
+        function saveWebhook() {
+            const url = document.getElementById('discord-webhook').value.trim();
+            if (url && !url.startsWith('https://discord.com/api/webhooks/')) {
+                showWebhookStatus('Invalid webhook URL. Must start with https://discord.com/api/webhooks/', 'error');
+                return;
+            }
+            localStorage.setItem('hofc-discord-webhook', url);
+            showWebhookStatus('Webhook URL saved!', 'success');
+        }
+
+        function loadWebhook() {
+            const saved = getWebhookUrl();
+            if (saved) {
+                document.getElementById('discord-webhook').value = saved;
+            }
+        }
+
+        function showWebhookStatus(message, type) {
+            const status = document.getElementById('webhook-status');
+            status.textContent = message;
+            status.style.color = type === 'error' ? 'var(--allied-light)' : type === 'success' ? '#4ade80' : 'var(--text-secondary)';
+        }
+
+        async function sendToDiscord(embed) {
+            const webhookUrl = getWebhookUrl();
+            if (!webhookUrl) {
+                return { success: false, error: 'No webhook URL configured' };
+            }
+
+            try {
+                const response = await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: 'Hail of Fire Campaign',
+                        embeds: [embed]
+                    })
+                });
+
+                if (response.ok || response.status === 204) {
+                    return { success: true };
+                } else {
+                    return { success: false, error: `Discord returned ${response.status}` };
+                }
+            } catch (err) {
+                return { success: false, error: err.message };
+            }
+        }
+
+        async function testWebhook() {
+            showWebhookStatus('Testing connection...', 'info');
+
+            const result = await sendToDiscord({
+                title: 'Connection Test',
+                description: 'Hail of Fire Campaign Tracker is connected!',
+                color: 0xc4a574,
+                timestamp: new Date().toISOString()
+            });
+
+            if (result.success) {
+                showWebhookStatus('Connected! Test message sent to Discord.', 'success');
+            } else {
+                showWebhookStatus(`Failed: ${result.error}`, 'error');
+            }
+        }
+
+        async function postGameResult(game) {
+            const cities = ['Cherbourg', 'Ste-Mere-Eglise', 'Carentan', 'Bayeux', 'Caen', 'Saint-Lo', 'Coutances'];
+            const alliedCities = cities.filter(c => campaignData.sectors[c]?.controller === 'Allied').length;
+            const axisCities = 7 - alliedCities;
+
+            const winnerEmoji = game.winner === 'Allied' ? '🔴' : '⚫';
+            const resultText = game.sectorChanged
+                ? `**${game.sectorChanged}** captured by ${game.winner}!`
+                : 'No territory changed hands';
+
+            const embed = {
+                title: `${winnerEmoji} Battle Report: ${game.winner} Victory!`,
+                color: game.winner === 'Allied' ? 0xb22222 : 0x1a1a1a,
+                fields: [
+                    { name: '🎖️ Allied Forces', value: game.alliedPlayer, inline: true },
+                    { name: '⚔️ Axis Forces', value: game.axisPlayer, inline: true },
+                    { name: '📍 Battle Location', value: `${game.toSector} (attacked from ${game.fromSector})`, inline: false },
+                    { name: '🏆 Result', value: resultText, inline: false },
+                    { name: '🏰 City Control', value: `Allied: ${alliedCities}/7 | Axis: ${axisCities}/7`, inline: false }
+                ],
+                footer: { text: `Game #${game.id}` },
+                timestamp: new Date().toISOString()
+            };
+
+            if (game.notes) {
+                embed.fields.push({ name: '📝 Notes', value: game.notes, inline: false });
+            }
+
+            return await sendToDiscord(embed);
+        }
+
+        async function postStandings() {
+            const cities = ['Cherbourg', 'Ste-Mere-Eglise', 'Carentan', 'Bayeux', 'Caen', 'Saint-Lo', 'Coutances'];
+            const alliedCities = cities.filter(c => campaignData.sectors[c]?.controller === 'Allied').length;
+            const axisCities = 7 - alliedCities;
+
+            let alliedCount = 0, axisCount = 0;
+            for (const [code, data] of Object.entries(campaignData.sectors)) {
+                if (data.controller === 'Allied') alliedCount++;
+                else axisCount++;
+            }
+
+            // Top players by coins
+            const topPlayers = campaignData.players
+                .map(p => ({ name: p.name, side: p.side, ...getPlayerStats(p.name) }))
+                .sort((a, b) => b.coins - a.coins)
+                .slice(0, 5);
+
+            const leaderboard = topPlayers.length > 0
+                ? topPlayers.map((p, i) => `${i + 1}. **${p.name}** (${p.side}) - ${p.coins} coins`).join('\n')
+                : 'No players yet';
+
+            const cityStatus = cities.map(c => {
+                const ctrl = campaignData.sectors[c]?.controller || 'Axis';
+                return `${ctrl === 'Allied' ? '🔴' : '⚫'} ${c}`;
+            }).join('\n');
+
+            const embed = {
+                title: '📊 Campaign Standings',
+                color: 0xc4a574,
+                fields: [
+                    { name: '🗺️ Territory Control', value: `Allied: **${alliedCount}** sectors\nAxis: **${axisCount}** sectors`, inline: true },
+                    { name: '🏰 City Control', value: `Allied: **${alliedCities}/7**\nAxis: **${axisCities}/7**`, inline: true },
+                    { name: '🎮 Games Played', value: `**${campaignData.games.length}** total`, inline: true },
+                    { name: '🏆 Leaderboard (by coins)', value: leaderboard, inline: false },
+                    { name: '🏙️ City Status', value: cityStatus, inline: false }
+                ],
+                footer: { text: 'Hail of Fire: Operation Overlord' },
+                timestamp: new Date().toISOString()
+            };
+
+            showWebhookStatus('Posting standings...', 'info');
+            const result = await sendToDiscord(embed);
+
+            if (result.success) {
+                showWebhookStatus('Standings posted to Discord!', 'success');
+            } else {
+                showWebhookStatus(`Failed: ${result.error}`, 'error');
+            }
+        }
+
+        // ============================================
+        // ADMIN FUNCTIONS
+        // ============================================
+
+        async function loginAdmin() {
+            const password = document.getElementById('admin-password').value;
+            const statusEl = document.getElementById('admin-login-status');
+
+            if (!password) {
+                statusEl.innerHTML = '<span style="color: #ef4444;">Please enter a password</span>';
+                return;
+            }
+
+            const hash = await hashPassword(password);
+
+            // If no password set yet, set this as the admin password
+            if (!window.storedAdminHash) {
+                await database.ref('config/adminPasswordHash').set(hash);
+                window.storedAdminHash = hash;
+                statusEl.innerHTML = '<span style="color: #22c55e;">Admin password set!</span>';
+            }
+
+            if (hash === window.storedAdminHash) {
+                isAdmin = true;
+                updateAdminUI();
+                document.getElementById('admin-password').value = '';
+                statusEl.innerHTML = '';
+            } else {
+                statusEl.innerHTML = '<span style="color: #ef4444;">Incorrect password</span>';
+            }
+        }
+
+        function logoutAdmin() {
+            isAdmin = false;
+            updateAdminUI();
+        }
+
+        async function setAdminPassword() {
+            if (!isAdmin) return;
+
+            const newPassword = document.getElementById('new-admin-password').value;
+            const confirmPassword = document.getElementById('confirm-admin-password').value;
+
+            if (!newPassword || !confirmPassword) {
+                alert('Please fill in both password fields');
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                alert('Passwords do not match');
+                return;
+            }
+
+            if (newPassword.length < 4) {
+                alert('Password must be at least 4 characters');
+                return;
+            }
+
+            const hash = await hashPassword(newPassword);
+            await database.ref('config/adminPasswordHash').set(hash);
+            window.storedAdminHash = hash;
+
+            document.getElementById('new-admin-password').value = '';
+            document.getElementById('confirm-admin-password').value = '';
+            alert('Admin password updated!');
+        }
+
+        function updateAdminUI() {
+            // Show/hide admin-only elements
+            document.querySelectorAll('.admin-only').forEach(el => {
+                el.style.display = isAdmin ? '' : 'none';
+            });
+            document.querySelectorAll('.admin-only-inline').forEach(el => {
+                el.style.display = isAdmin ? 'inline' : 'none';
+            });
+
+            // Update admin tab sections
+            const loginSection = document.getElementById('admin-login-section');
+            const loggedInSection = document.getElementById('admin-logged-in');
+            const pendingCard = document.getElementById('pending-games-card');
+            const actionsCard = document.getElementById('admin-actions-card');
+            const passwordCard = document.getElementById('set-password-card');
+
+            if (isAdmin) {
+                loginSection.style.display = 'none';
+                loggedInSection.style.display = 'block';
+                pendingCard.style.display = 'block';
+                actionsCard.style.display = 'block';
+                passwordCard.style.display = 'block';
+            } else {
+                loginSection.style.display = 'block';
+                loggedInSection.style.display = 'none';
+                pendingCard.style.display = 'none';
+                actionsCard.style.display = 'none';
+                passwordCard.style.display = 'none';
+            }
+        }
+
+        // ============================================
+        // PENDING GAME FUNCTIONS
+        // ============================================
+
+        function submitGameForApproval(e) {
+            e.preventDefault();
+
+            const submission = {
+                date: document.getElementById('submit-game-date').value,
+                submitterName: document.getElementById('submit-player-name').value,
+                alliedPlayer: document.getElementById('submit-allied-player').value,
+                axisPlayer: document.getElementById('submit-axis-player').value,
+                initiative: document.getElementById('submit-initiative').value,
+                fromSector: document.getElementById('submit-from-sector').value,
+                toSector: document.getElementById('submit-to-sector').value,
+                winner: document.getElementById('submit-winner').value,
+                notes: document.getElementById('submit-notes').value,
+                submittedAt: new Date().toISOString()
+            };
+
+            // Push to Firebase pending games
+            database.ref('pendingGames').push(submission)
+                .then(() => {
+                    alert('Game submitted for approval! The campaign admin will review your submission.');
+                    // Clear form
+                    document.getElementById('submit-game-date').valueAsDate = new Date();
+                    document.getElementById('submit-allied-player').value = '';
+                    document.getElementById('submit-axis-player').value = '';
+                    document.getElementById('submit-initiative').value = '';
+                    document.getElementById('submit-from-sector').value = '';
+                    document.getElementById('submit-to-sector').value = '';
+                    document.getElementById('submit-winner').value = '';
+                    document.getElementById('submit-notes').value = '';
+                })
+                .catch(err => {
+                    alert('Error submitting game: ' + err.message);
+                });
+        }
+
+        function approveGame(firebaseKey) {
+            const pendingGame = campaignData.pendingGames.find(g => g.firebaseKey === firebaseKey);
+            if (!pendingGame) return;
+
+            // Create game from pending submission
+            const game = {
+                id: campaignData.games.length + 1,
+                date: pendingGame.date,
+                alliedPlayer: pendingGame.alliedPlayer,
+                axisPlayer: pendingGame.axisPlayer,
+                initiative: pendingGame.initiative,
+                fromSector: pendingGame.fromSector,
+                toSector: pendingGame.toSector,
+                winner: pendingGame.winner,
+                notes: pendingGame.notes
+            };
+
+            // Determine sector change
+            const loserSector = game.winner === game.initiative ? game.toSector : game.fromSector;
+            const loserDef = SECTOR_DEFINITIONS[loserSector];
+
+            // Landing sectors can't be captured by Axis
+            if (loserDef?.landing && game.winner === 'Axis') {
+                game.sectorChanged = null;
+                game.result = 'No change (Landing sector protected)';
+            } else {
+                game.sectorChanged = loserSector;
+                game.result = `${game.winner} captured ${loserSector}`;
+                campaignData.sectors[loserSector] = { controller: game.winner };
+            }
+
+            campaignData.games.push(game);
+
+            // Auto-award coins for playing
+            const alliedCoins = { player: game.alliedPlayer, amount: 1, reason: 'Game Played', date: game.date, gameId: game.id };
+            const axisCoins = { player: game.axisPlayer, amount: 1, reason: 'Game Played', date: game.date, gameId: game.id };
+            campaignData.coins.push(alliedCoins, axisCoins);
+
+            // Save to Firebase and remove from pending
+            saveToFirebase();
+            database.ref('pendingGames/' + firebaseKey).remove();
+
+            // Offer to post to Discord
+            if (getWebhookUrl()) {
+                if (confirm('Game approved! Post result to Discord?')) {
+                    postGameResult(game);
+                }
+            }
+        }
+
+        function rejectGame(firebaseKey) {
+            if (!confirm('Reject this game submission?')) return;
+            database.ref('pendingGames/' + firebaseKey).remove();
+        }
+
+        function renderPendingGames() {
+            const container = document.getElementById('pending-games-list');
+            const myContainer = document.getElementById('my-pending-games');
+
+            if (!container) return;
+
+            if (campaignData.pendingGames.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-secondary);">No pending games.</p>';
+                if (myContainer) {
+                    myContainer.innerHTML = '<p style="color: var(--text-secondary);">No pending submissions.</p>';
+                }
+                return;
+            }
+
+            // Admin view - all pending games
+            container.innerHTML = campaignData.pendingGames.map(game => `
+                <div class="pending-game" style="background: var(--surface); padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border-left: 4px solid var(--accent);">
+                    <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+                        <div>
+                            <strong>${game.alliedPlayer}</strong> (Allied) vs <strong>${game.axisPlayer}</strong> (Axis)
+                        </div>
+                        <div style="color: var(--text-secondary);">${game.date}</div>
+                    </div>
+                    <div style="margin: 0.5rem 0;">
+                        <span class="badge ${game.winner.toLowerCase()}">${game.winner} Victory</span>
+                        <span style="color: var(--text-secondary); margin-left: 0.5rem;">
+                            ${game.fromSector} → ${game.toSector} | Initiative: ${game.initiative}
+                        </span>
+                    </div>
+                    ${game.notes ? `<p style="color: var(--text-secondary); font-style: italic;">${game.notes}</p>` : ''}
+                    <div style="color: var(--text-secondary); font-size: 0.85rem;">
+                        Submitted by: ${game.submitterName} at ${new Date(game.submittedAt).toLocaleString()}
+                    </div>
+                    <div style="margin-top: 0.5rem;">
+                        <button onclick="approveGame('${game.firebaseKey}')" class="allied" style="margin-right: 0.5rem;">Approve</button>
+                        <button onclick="rejectGame('${game.firebaseKey}')" class="danger">Reject</button>
+                    </div>
+                </div>
+            `).join('');
+
+            // Player view - their submissions
+            if (myContainer) {
+                const submitterName = document.getElementById('submit-player-name')?.value;
+                const myGames = submitterName
+                    ? campaignData.pendingGames.filter(g => g.submitterName.toLowerCase() === submitterName.toLowerCase())
+                    : campaignData.pendingGames;
+
+                if (myGames.length === 0) {
+                    myContainer.innerHTML = '<p style="color: var(--text-secondary);">No pending submissions.</p>';
+                } else {
+                    myContainer.innerHTML = myGames.map(game => `
+                        <div style="background: var(--surface); padding: 0.75rem; border-radius: 8px; margin-bottom: 0.5rem;">
+                            <strong>${game.alliedPlayer}</strong> vs <strong>${game.axisPlayer}</strong> - ${game.date}
+                            <span class="badge" style="background: #f59e0b; color: #000; margin-left: 0.5rem;">Pending</span>
+                        </div>
+                    `).join('');
+                }
+            }
+        }
+
+        function updatePendingCount() {
+            const countEl = document.getElementById('pending-count');
+            if (countEl) {
+                countEl.textContent = campaignData.pendingGames.length;
+                countEl.style.display = campaignData.pendingGames.length > 0 ? 'inline' : 'none';
+            }
+        }
+
+        function populateSubmitSectorSelects() {
+            const fromSelect = document.getElementById('submit-from-sector');
+            const toSelect = document.getElementById('submit-to-sector');
+
+            if (!fromSelect || !toSelect) return;
+
+            const options = Object.entries(SECTOR_DEFINITIONS)
+                .map(([code, def]) => `<option value="${code}">${code} - ${def.name}</option>`)
+                .join('');
+
+            fromSelect.innerHTML = '<option value="">Select sector...</option>' + options;
+            toSelect.innerHTML = '<option value="">Select sector...</option>' + options;
+        }
+
+        // Import/Export
+        function exportData() {
+            const dataStr = JSON.stringify(campaignData, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `hofc-campaign-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+
+            URL.revokeObjectURL(url);
+        }
+
+        function importData() {
+            const file = document.getElementById('import-file').files[0];
+            if (!file) {
+                alert('Please select a file first');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (!data.players || !data.games || !data.coins || !data.sectors) {
+                        throw new Error('Invalid data format');
+                    }
+                    campaignData = data;
+                    saveToFirebase();
+                    renderAll();
+                    alert('Data imported successfully!');
+                } catch (err) {
+                    alert('Error importing data: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function resetMap() {
+            if (!confirm('Reset the map to starting positions? Players and coins will be kept.')) return;
+            initializeSectors();
+            renderAll();
+        }
+
+        function resetAll() {
+            if (!confirm('DELETE ALL DATA? This cannot be undone!')) return;
+            if (!confirm('Are you REALLY sure? Type "RESET" to confirm...')) return;
+
+            campaignData = { players: [], games: [], coins: [], sectors: {}, pendingGames: [] };
+            initializeSectors();
+            saveToFirebase();
+            // Also clear pending games
+            database.ref('pendingGames').remove();
+            renderAll();
+        }
+
+        // ============================================
+        // POSITION EDITOR
+        // ============================================
+
+        let editMode = false;
+        let currentPositions = {}; // Stores modified positions
+        let dragState = {
+            isDragging: false,
+            element: null,
+            code: null,
+            startX: 0,
+            startY: 0
+        };
+
+        // Initialize positions from SECTOR_DEFINITIONS
+        function initPositions() {
+            for (const [code, def] of Object.entries(SECTOR_DEFINITIONS)) {
+                currentPositions[code] = { x: def.x, y: def.y };
+            }
+        }
+
+        // Toggle edit mode
+        function toggleEditMode() {
+            editMode = !editMode;
+
+            const btn = document.getElementById('toggle-edit-btn');
+            const status = document.getElementById('edit-mode-status');
+            const controls = document.getElementById('editor-controls');
+            const exportPanel = document.getElementById('export-panel');
+            const posDisplay = document.getElementById('current-position');
+            const instructions = document.getElementById('edit-instructions');
+
+            if (editMode) {
+                btn.textContent = 'Disable Position Editor';
+                btn.classList.add('danger');
+                status.textContent = 'Edit mode: ON - Drag markers to reposition';
+                status.style.color = 'var(--accent)';
+                controls.classList.add('active');
+                exportPanel.style.display = 'block';
+                posDisplay.style.display = 'block';
+                instructions.style.display = 'block';
+
+                // Initialize positions if not done
+                if (Object.keys(currentPositions).length === 0) {
+                    initPositions();
+                }
+
+                // Update export code
+                updateExportCode();
+            } else {
+                btn.textContent = 'Enable Position Editor';
+                btn.classList.remove('danger');
+                status.textContent = 'Edit mode: OFF';
+                status.style.color = 'var(--text-secondary)';
+                controls.classList.remove('active');
+                exportPanel.style.display = 'none';
+                posDisplay.style.display = 'none';
+                instructions.style.display = 'none';
+            }
+
+            // Re-render map with edit mode classes
+            renderMap();
+        }
+
+        // Updated renderMap to support dragging
+        function renderMap() {
+            const overlay = document.getElementById('sector-overlay');
+            overlay.innerHTML = '';
+
+            const sectorList = document.getElementById('sector-list');
+            sectorList.innerHTML = '';
+
+            for (const [code, def] of Object.entries(SECTOR_DEFINITIONS)) {
+                const ctrl = campaignData.sectors[code]?.controller || 'Axis';
+
+                // Use modified position if available, otherwise use default
+                const pos = currentPositions[code] || { x: def.x, y: def.y };
+
+                // Create marker
+                const marker = document.createElement('div');
+                marker.className = `sector-marker ${ctrl.toLowerCase()} ${def.city ? 'city' : ''} ${def.landing ? 'landing' : ''}`;
+                if (editMode) {
+                    marker.classList.add('edit-mode');
+                }
+                marker.style.left = `${pos.x}%`;
+                marker.style.top = `${pos.y}%`;
+                marker.title = `${def.name} (${ctrl})`;
+                marker.dataset.code = code;
+                marker.setAttribute('data-code', code);
+
+                // Different behavior in edit mode
+                if (editMode) {
+                    marker.onmousedown = (e) => startDrag(e, code, marker);
+                    marker.onclick = (e) => e.stopPropagation(); // Prevent modal in edit mode
+                } else {
+                    marker.onclick = () => showSectorModal(code);
+                }
+
+                overlay.appendChild(marker);
+
+                // Add to list (cities and landing only for brevity)
+                if (def.city || def.landing) {
+                    const item = document.createElement('div');
+                    item.innerHTML = `<span class="badge ${ctrl.toLowerCase()}">${code}</span> ${def.name}`;
+                    item.style.cursor = 'pointer';
+                    item.onclick = () => {
+                        if (!editMode) showSectorModal(code);
+                    };
+                    sectorList.appendChild(item);
+                }
+            }
+        }
+
+        // Drag functions
+        function startDrag(e, code, element) {
+            if (!editMode) return;
+            e.preventDefault();
+
+            dragState = {
+                isDragging: true,
+                element: element,
+                code: code,
+                startX: e.clientX,
+                startY: e.clientY
+            };
+
+            element.classList.add('dragging');
+
+            // Update position display
+            updatePositionDisplay(code);
+
+            document.addEventListener('mousemove', onDrag);
+            document.addEventListener('mouseup', endDrag);
+        }
+
+        function onDrag(e) {
+            if (!dragState.isDragging) return;
+
+            const container = document.getElementById('map-container');
+            const rect = container.getBoundingClientRect();
+
+            // Calculate new position as percentage
+            let x = ((e.clientX - rect.left) / rect.width) * 100;
+            let y = ((e.clientY - rect.top) / rect.height) * 100;
+
+            // Clamp to bounds
+            x = Math.max(0, Math.min(100, x));
+            y = Math.max(0, Math.min(100, y));
+
+            // Round to 1 decimal place
+            x = Math.round(x * 10) / 10;
+            y = Math.round(y * 10) / 10;
+
+            // Update element position
+            dragState.element.style.left = `${x}%`;
+            dragState.element.style.top = `${y}%`;
+
+            // Store new position
+            currentPositions[dragState.code] = { x, y };
+
+            // Update display
+            document.getElementById('pos-x').textContent = x;
+            document.getElementById('pos-y').textContent = y;
+        }
+
+        function endDrag() {
+            if (!dragState.isDragging) return;
+
+            dragState.element.classList.remove('dragging');
+            dragState.isDragging = false;
+
+            document.removeEventListener('mousemove', onDrag);
+            document.removeEventListener('mouseup', endDrag);
+
+            // Update export code
+            updateExportCode();
+        }
+
+        function updatePositionDisplay(code) {
+            const pos = currentPositions[code] || SECTOR_DEFINITIONS[code];
+            document.getElementById('selected-sector').textContent = code;
+            document.getElementById('pos-x').textContent = pos.x;
+            document.getElementById('pos-y').textContent = pos.y;
+        }
+
+        // Generate export code
+        function updateExportCode() {
+            let code = `const SECTOR_DEFINITIONS = {\n`;
+
+            // Group by type for readability
+            const landing = [];
+            const cities = [];
+            const sectors = {};
+
+            for (const [sectorCode, def] of Object.entries(SECTOR_DEFINITIONS)) {
+                const pos = currentPositions[sectorCode] || { x: def.x, y: def.y };
+                const entry = { code: sectorCode, def, pos };
+
+                if (def.landing) {
+                    landing.push(entry);
+                } else if (def.city) {
+                    cities.push(entry);
+                } else {
+                    const row = sectorCode.charAt(0);
+                    if (!sectors[row]) sectors[row] = [];
+                    sectors[row].push(entry);
+                }
+            }
+
+            // Landing sectors
+            code += `    // Landing sectors (Allied start)\n`;
+            for (const { code: c, def, pos } of landing) {
+                code += `    '${c}': { name: '${def.name}', type: '${def.type}', landing: ${def.landing}, city: ${def.city}, flooded: ${def.flooded}, x: ${pos.x}, y: ${pos.y} },\n`;
+            }
+
+            // Cities
+            code += `\n    // Cities\n`;
+            for (const { code: c, def, pos } of cities) {
+                code += `    '${c}': { name: '${def.name}', type: '${def.type}', landing: ${def.landing}, city: ${def.city}, flooded: ${def.flooded}, x: ${pos.x}, y: ${pos.y} },\n`;
+            }
+
+            // Sector rows
+            for (const row of Object.keys(sectors).sort()) {
+                code += `\n    // Row ${row}\n`;
+                for (const { code: c, def, pos } of sectors[row].sort((a, b) => a.code.localeCompare(b.code))) {
+                    code += `    '${c}': { name: '${def.name}', type: '${def.type}', landing: ${def.landing}, city: ${def.city}, flooded: ${def.flooded}, x: ${pos.x}, y: ${pos.y} },\n`;
+                }
+            }
+
+            code += `};`;
+
+            document.getElementById('positions-code').textContent = code;
+        }
+
+        // Copy code to clipboard
+        function copyPositionsCode() {
+            const code = document.getElementById('positions-code').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                alert('Code copied to clipboard!\n\nPaste this into the HTML file to replace the SECTOR_DEFINITIONS object (around line 870).');
+            }).catch(() => {
+                // Fallback for older browsers
+                const textarea = document.createElement('textarea');
+                textarea.value = code;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert('Code copied to clipboard!');
+            });
+        }
+
+        // Reset positions to defaults
+        function resetPositions() {
+            if (!confirm('Reset all positions to their default values?')) return;
+            initPositions();
+            renderMap();
+            updateExportCode();
+        }
+
+        // Initialize positions on load
+        initPositions();
+    </script>
+</body>
+</html>
