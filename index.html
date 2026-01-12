@@ -1279,6 +1279,7 @@
                     </table>
                 </div>
             </div>
+
         </div>
 
         <!-- Games Tab -->
@@ -1538,10 +1539,38 @@
                 <select id="player-side" required>
                     <option value="Allied">Allied</option>
                     <option value="Axis">Axis</option>
-                    <option value="Substitute">Substitute (not on a side)</option>
+                    <option value="Reserve">Reserve (not on a side)</option>
                 </select>
 
                 <button type="submit">Add Player</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Player Modal -->
+    <div class="modal" id="edit-player-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Player</h2>
+                <button class="modal-close" onclick="closeModal('edit-player-modal')">&times;</button>
+            </div>
+            <form onsubmit="savePlayerEdits(event)">
+                <input type="hidden" id="edit-player-original-name">
+
+                <label>Player Name</label>
+                <input type="text" id="edit-player-name" required>
+
+                <label>Declared Side</label>
+                <select id="edit-player-side" required>
+                    <option value="Allied">Allied</option>
+                    <option value="Axis">Axis</option>
+                    <option value="Reserve">Reserve (not on a side)</option>
+                </select>
+
+                <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                    <button type="submit" style="flex: 1;">Save Changes</button>
+                    <button type="button" class="danger" onclick="deletePlayerFromModal()" style="flex: 0;">Delete Player</button>
+                </div>
             </form>
         </div>
     </div>
@@ -1984,6 +2013,58 @@
             renderAll();
         }
 
+        function showEditPlayerModal(name) {
+            const player = campaignData.players.find(p => p.name === name);
+            if (!player) return;
+
+            document.getElementById('edit-player-original-name').value = player.name;
+            document.getElementById('edit-player-name').value = player.name;
+            document.getElementById('edit-player-side').value = player.side;
+            showModal('edit-player-modal');
+        }
+
+        function savePlayerEdits(e) {
+            e.preventDefault();
+            const originalName = document.getElementById('edit-player-original-name').value;
+            const newName = document.getElementById('edit-player-name').value.trim();
+            const newSide = document.getElementById('edit-player-side').value;
+
+            if (!newName) return;
+
+            const player = campaignData.players.find(p => p.name === originalName);
+            if (!player) return;
+
+            // Check for duplicate name if name changed
+            if (newName !== originalName && campaignData.players.some(p => p.name === newName)) {
+                alert('A player with that name already exists.');
+                return;
+            }
+
+            // Update player name in games and coins if changed
+            if (newName !== originalName) {
+                campaignData.games.forEach(g => {
+                    if (g.alliedPlayer === originalName) g.alliedPlayer = newName;
+                    if (g.axisPlayer === originalName) g.axisPlayer = newName;
+                });
+                campaignData.coins.forEach(c => {
+                    if (c.player === originalName) c.player = newName;
+                });
+            }
+
+            player.name = newName;
+            player.side = newSide;
+
+            saveToFirebase();
+            renderAll();
+            closeModal('edit-player-modal');
+        }
+
+        function deletePlayerFromModal() {
+            const name = document.getElementById('edit-player-original-name').value;
+            closeModal('edit-player-modal');
+            deletePlayer(name);
+        }
+
         function getPlayerStats(name) {
             const coins = campaignData.coins
                 .filter(c => c.player === name)
@@ -2202,9 +2283,9 @@
                 return `<span class="badge ${ctrl.toLowerCase()}" style="margin: 2px;">${c}</span>`;
             }).join('');
 
-            // Top players (exclude Substitutes)
+            // Top players (exclude Reserves)
             const players = campaignData.players
-                .filter(p => p.side !== 'Substitute')
+                .filter(p => p.side !== 'Reserve')
                 .map(p => ({ ...p, ...getPlayerStats(p.name) }))
                 .sort((a, b) => b.coins - a.coins)
                 .slice(0, 5);
@@ -2247,11 +2328,16 @@
         function renderPlayers() {
             const tbody = document.querySelector('#players-table tbody');
             const players = campaignData.players
-                .filter(p => p.side !== 'Substitute')
+                .filter(p => p.side !== 'Reserve')
                 .map(p => ({ ...p, ...getPlayerStats(p.name) }))
                 .sort((a, b) => b.coins - a.coins);
 
-            tbody.innerHTML = players.map((p, i) => `
+            const reservePlayers = campaignData.players
+                .filter(p => p.side === 'Reserve')
+                .map(p => ({ ...p, ...getPlayerStats(p.name) }));
+
+            // Render regular players with rankings
+            let html = players.map((p, i) => `
                 <tr>
                     <td>${i + 1}</td>
                     <td><strong>${p.name}</strong></td>
@@ -2263,11 +2349,32 @@
                     <td>${p.winRate}%</td>
                     <td>
                         <div class="action-buttons">
-                            ${isAdmin ? `<button class="danger" onclick="deletePlayer('${p.name}')">Delete</button>` : '-'}
+                            ${isAdmin ? `<button onclick="showEditPlayerModal('${p.name}')">Edit</button>` : '-'}
                         </div>
                     </td>
                 </tr>
             `).join('');
+
+            // Render reserve players with dashes for stats
+            html += reservePlayers.map(p => `
+                <tr style="opacity: 0.7;">
+                    <td>-</td>
+                    <td><strong>${p.name}</strong></td>
+                    <td><span class="badge reserve" style="background: var(--bg-light); color: var(--text-secondary);">Reserve</span></td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>
+                        <div class="action-buttons">
+                            ${isAdmin ? `<button onclick="showEditPlayerModal('${p.name}')">Edit</button>` : '-'}
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+
+            tbody.innerHTML = html;
         }
 
         function renderGames() {
@@ -2557,6 +2664,7 @@ Allied: ${allied} | Axis: ${axis}
             if (hash === window.storedAdminHash) {
                 isAdmin = true;
                 updateAdminUI();
+                renderAll();
                 document.getElementById('admin-password').value = '';
                 statusEl.innerHTML = '';
             } else {
@@ -2567,6 +2675,7 @@ Allied: ${allied} | Axis: ${axis}
         function logoutAdmin() {
             isAdmin = false;
             updateAdminUI();
+            renderAll();
         }
 
         async function setAdminPassword() {
