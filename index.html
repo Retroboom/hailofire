@@ -154,6 +154,18 @@
             display: inline-block;
         }
 
+        .stats-banner .countdown-days {
+            font-family: 'Black Ops One', cursive;
+            font-size: 1.3rem;
+        }
+
+        .stats-banner .countdown-time {
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
+            color: var(--accent);
+        }
+
         .stats-banner .divider {
             width: 1px;
             height: 30px;
@@ -1750,11 +1762,11 @@
         // To adjust positions: open the HTML, use browser dev tools, and tweak x/y values
         const SECTOR_DEFINITIONS = {
             // Landing sectors (Allied start)
-            'Utah': { name: 'Utah Beach', type: 'Beach', landing: true, city: false, flooded: false, x: 37.8, y: 38.1 },
-            'Omaha': { name: 'Omaha Beach', type: 'Beach', landing: true, city: false, flooded: false, x: 53.4, y: 46.7 },
-            'Gold': { name: 'Gold Beach', type: 'Beach', landing: true, city: false, flooded: false, x: 68.7, y: 52.2 },
-            'Juno': { name: 'Juno Beach', type: 'Beach', landing: true, city: false, flooded: false, x: 78.1, y: 53 },
-            'Sword': { name: 'Sword Beach', type: 'Beach', landing: true, city: false, flooded: false, x: 84.1, y: 56.7 },
+            'Utah': { name: 'Utah Beach', type: 'Bocage', landing: true, city: false, flooded: false, x: 37.8, y: 38.1 },
+            'Omaha': { name: 'Omaha Beach', type: 'Farmland', landing: true, city: false, flooded: false, x: 53.4, y: 46.7 },
+            'Gold': { name: 'Gold Beach', type: 'Farmland', landing: true, city: false, flooded: false, x: 68.7, y: 52.2 },
+            'Juno': { name: 'Juno Beach', type: 'Farmland', landing: true, city: false, flooded: false, x: 78.1, y: 53 },
+            'Sword': { name: 'Sword Beach', type: 'Farmland', landing: true, city: false, flooded: false, x: 84.1, y: 56.7 },
 
             // Cities
             'Cherbourg': { name: 'Cherbourg', type: 'City', landing: false, city: true, flooded: false, x: 20.8, y: 16.3 },
@@ -1766,59 +1778,59 @@
             'Coutances': { name: 'Coutances', type: 'City', landing: false, city: true, flooded: false, x: 26.2, y: 78.2 },
 
             // Row A
-            'A1': { name: 'Sector A1', type: 'Bocage', landing: false, city: false, flooded: false, x: 11, y: 10.6 },
-            'A2': { name: 'Sector A2', type: 'Bocage', landing: false, city: false, flooded: false, x: 31.9, y: 10.2 },
-            'A3': { name: 'Sector A3', type: 'Flooded', landing: false, city: false, flooded: true, x: 10, y: 24.1 },
-            'A4': { name: 'Sector A4', type: 'Flooded', landing: false, city: false, flooded: true, x: 17.3, y: 21.6 },
+            'A1': { name: 'Sector A1', type: 'Farmland', landing: false, city: false, flooded: false, x: 11, y: 10.6 },
+            'A2': { name: 'Sector A2', type: 'Farmland', landing: false, city: false, flooded: false, x: 31.9, y: 10.2 },
+            'A3': { name: 'Sector A3', type: 'Bocage', landing: false, city: false, flooded: false, x: 10, y: 24.1 },
+            'A4': { name: 'Sector A4', type: 'Bocage', landing: false, city: false, flooded: false, x: 17.3, y: 21.6 },
             'A5': { name: 'Sector A5', type: 'Bocage', landing: false, city: false, flooded: false, x: 25.8, y: 24.3 },
             'A6': { name: 'Sector A6', type: 'Bocage', landing: false, city: false, flooded: false, x: 33.9, y: 28.7 },
             'A7': { name: 'Sector A7', type: 'Bocage', landing: false, city: false, flooded: false, x: 19.1, y: 34.4 },
-            'A8': { name: 'Sector A8', type: 'Bocage', landing: false, city: false, flooded: false, x: 27.8, y: 36 },
+            'A8': { name: 'Sector A8', type: 'Flooded', landing: false, city: false, flooded: true, x: 27.8, y: 36 },
             'A9': { name: 'Sector A9', type: 'Bocage', landing: false, city: false, flooded: false, x: 36, y: 42.2 },
 
             // Row B
-            'B1': { name: 'Sector B1', type: 'Bocage', landing: false, city: false, flooded: false, x: 28, y: 48 },
-            'B2': { name: 'Sector B2', type: 'Flooded', landing: false, city: false, flooded: true, x: 38.9, y: 49.7 },
-            'B3': { name: 'Sector B3', type: 'Flooded', landing: false, city: false, flooded: true, x: 22.6, y: 57.5 },
-            'B4': { name: 'Sector B4', type: 'Farmland', landing: false, city: false, flooded: false, x: 33.4, y: 57.6 },
-            'B5': { name: 'Sector B5', type: 'Bocage', landing: false, city: false, flooded: false, x: 23.2, y: 67.2 },
+            'B1': { name: 'Sector B1', type: 'Flooded', landing: false, city: false, flooded: true, x: 28, y: 48 },
+            'B2': { name: 'Sector B2', type: 'Farmland', landing: false, city: false, flooded: false, x: 38.9, y: 49.7 },
+            'B3': { name: 'Sector B3', type: 'Farmland', landing: false, city: false, flooded: false, x: 22.6, y: 57.5 },
+            'B4': { name: 'Sector B4', type: 'Bocage', landing: false, city: false, flooded: false, x: 33.4, y: 57.6 },
+            'B5': { name: 'Sector B5', type: 'Farmland', landing: false, city: false, flooded: false, x: 23.2, y: 67.2 },
             'B6': { name: 'Sector B6', type: 'Bocage', landing: false, city: false, flooded: false, x: 32.7, y: 69.3 },
-            'B7': { name: 'Sector B7', type: 'Bocage', landing: false, city: false, flooded: false, x: 22.4, y: 77.8 },
+            'B7': { name: 'Sector B7', type: 'Farmland', landing: false, city: false, flooded: false, x: 22.4, y: 77.8 },
             'B8': { name: 'Sector B8', type: 'Bocage', landing: false, city: false, flooded: false, x: 30.4, y: 78.5 },
-            'B9': { name: 'Sector B9', type: 'Bocage', landing: false, city: false, flooded: false, x: 23.8, y: 87.2 },
+            'B9': { name: 'Sector B9', type: 'Farmland', landing: false, city: false, flooded: false, x: 23.8, y: 87.2 },
 
             // Row C
-            'C1': { name: 'Sector C1', type: 'Farmland', landing: false, city: false, flooded: false, x: 46.1, y: 57.6 },
-            'C2': { name: 'Sector C2', type: 'Farmland', landing: false, city: false, flooded: false, x: 55.1, y: 58.3 },
-            'C3': { name: 'Sector C3', type: 'Farmland', landing: false, city: false, flooded: false, x: 40.7, y: 68.5 },
-            'C4': { name: 'Sector C4', type: 'Farmland', landing: false, city: false, flooded: false, x: 52.7, y: 70.2 },
+            'C1': { name: 'Sector C1', type: 'Flooded', landing: false, city: false, flooded: true, x: 46.1, y: 57.6 },
+            'C2': { name: 'Sector C2', type: 'Bocage', landing: false, city: false, flooded: false, x: 55.1, y: 58.3 },
+            'C3': { name: 'Sector C3', type: 'Bocage', landing: false, city: false, flooded: false, x: 40.7, y: 68.5 },
+            'C4': { name: 'Sector C4', type: 'Bocage', landing: false, city: false, flooded: false, x: 52.7, y: 70.2 },
             'C5': { name: 'Sector C5', type: 'Bocage', landing: false, city: false, flooded: false, x: 41.4, y: 83.3 },
             'C6': { name: 'Sector C6', type: 'Bocage', landing: false, city: false, flooded: false, x: 50.6, y: 82.8 },
-            'C7': { name: 'Sector C7', type: 'Bocage', landing: false, city: false, flooded: false, x: 30.6, y: 90.9 },
+            'C7': { name: 'Sector C7', type: 'Farmland', landing: false, city: false, flooded: false, supplySource: 'Axis', x: 30.6, y: 90.9 },
             'C8': { name: 'Sector C8', type: 'Bocage', landing: false, city: false, flooded: false, x: 44, y: 91.6 },
             'C9': { name: 'Sector C9', type: 'Bocage', landing: false, city: false, flooded: false, x: 55.9, y: 86.1 },
 
             // Row D
             'D1': { name: 'Sector D1', type: 'Farmland', landing: false, city: false, flooded: false, x: 65.1, y: 54.7 },
             'D2': { name: 'Sector D2', type: 'Farmland', landing: false, city: false, flooded: false, x: 71.9, y: 57.7 },
-            'D3': { name: 'Sector D3', type: 'Farmland', landing: false, city: false, flooded: false, x: 63.4, y: 62.9 },
-            'D4': { name: 'Sector D4', type: 'Farmland', landing: false, city: false, flooded: false, x: 63.3, y: 68.6 },
+            'D3': { name: 'Sector D3', type: 'Bocage', landing: false, city: false, flooded: false, x: 63.4, y: 62.9 },
+            'D4': { name: 'Sector D4', type: 'Bocage', landing: false, city: false, flooded: false, x: 63.3, y: 68.6 },
             'D5': { name: 'Sector D5', type: 'Bocage', landing: false, city: false, flooded: false, x: 74.3, y: 70.1 },
             'D6': { name: 'Sector D6', type: 'Bocage', landing: false, city: false, flooded: false, x: 61.8, y: 80.4 },
             'D7': { name: 'Sector D7', type: 'Bocage', landing: false, city: false, flooded: false, x: 72, y: 80.3 },
-            'D8': { name: 'Sector D8', type: 'Bocage', landing: false, city: false, flooded: false, x: 59.6, y: 94.5 },
-            'D9': { name: 'Sector D9', type: 'Bocage', landing: false, city: false, flooded: false, x: 70.4, y: 92.4 },
+            'D8': { name: 'Sector D8', type: 'Farmland', landing: false, city: false, flooded: false, supplySource: 'Axis', x: 59.6, y: 94.5 },
+            'D9': { name: 'Sector D9', type: 'Farmland', landing: false, city: false, flooded: false, x: 70.4, y: 92.4 },
 
             // Row E
             'E1': { name: 'Sector E1', type: 'Farmland', landing: false, city: false, flooded: false, x: 78.8, y: 58.6 },
             'E2': { name: 'Sector E2', type: 'Farmland', landing: false, city: false, flooded: false, x: 84.1, y: 60.7 },
-            'E3': { name: 'Sector E3', type: 'Farmland', landing: false, city: false, flooded: false, x: 93.6, y: 59.4 },
+            'E3': { name: 'Sector E3', type: 'Flooded', landing: false, city: false, flooded: true, x: 93.6, y: 59.4 },
             'E4': { name: 'Sector E4', type: 'Farmland', landing: false, city: false, flooded: false, x: 90, y: 69.6 },
-            'E5': { name: 'Sector E5', type: 'Bocage', landing: false, city: false, flooded: false, x: 98.3, y: 71.2 },
-            'E6': { name: 'Sector E6', type: 'Bocage', landing: false, city: false, flooded: false, x: 83.7, y: 75.8 },
-            'E7': { name: 'Sector E7', type: 'Bocage', landing: false, city: false, flooded: false, x: 79.7, y: 82.8 },
-            'E8': { name: 'Sector E8', type: 'Bocage', landing: false, city: false, flooded: false, x: 92, y: 81.7 },
-            'E9': { name: 'Sector E9', type: 'Bocage', landing: false, city: false, flooded: false, x: 80.7, y: 91.5 }
+            'E5': { name: 'Sector E5', type: 'Farmland', landing: false, city: false, flooded: false, x: 98.3, y: 71.2 },
+            'E6': { name: 'Sector E6', type: 'Farmland', landing: false, city: false, flooded: false, x: 83.7, y: 75.8 },
+            'E7': { name: 'Sector E7', type: 'Farmland', landing: false, city: false, flooded: false, x: 79.7, y: 82.8 },
+            'E8': { name: 'Sector E8', type: 'Farmland', landing: false, city: false, flooded: false, x: 92, y: 81.7 },
+            'E9': { name: 'Sector E9', type: 'Farmland', landing: false, city: false, flooded: false, supplySource: 'Axis', x: 80.7, y: 91.5 }
         };
 
         // Initialize
@@ -2103,9 +2115,9 @@
                 <p><strong>Code:</strong> ${code}</p>
                 <p><strong>Type:</strong> ${def.type}</p>
                 <p><strong>Controller:</strong> <span class="badge ${control.toLowerCase()}">${control}</span></p>
-                ${def.landing ? '<p><strong>Landing Sector:</strong> Yes (cannot be captured by Axis)</p>' : ''}
-                ${def.city ? '<p><strong>City:</strong> Yes (victory objective)</p>' : ''}
-                ${def.flooded ? '<p><strong>Flooded:</strong> Yes (-1 BP for paradrop)</p>' : ''}
+                ${def.landing ? '<p><strong>Landing Sector</strong> (cannot be captured by Axis)</p>' : ''}
+                ${def.city ? '<p><strong>City</strong> (victory objective)</p>' : ''}
+                ${def.flooded ? '<p><strong>Flooded</strong> (-1 BP for paradrop)</p>' : ''}
                 <div class="mt-1">
                     ${(!def.landing && isAdmin) ? `<button onclick="toggleSectorControl('${code}'); closeModal('sector-modal');" class="${control === 'Allied' ? 'axis' : 'allied'}">
                         Change to ${control === 'Allied' ? 'Axis' : 'Allied'} Control
@@ -2144,10 +2156,8 @@
 
         // Countdown timer
         function updateCountdown() {
-            const campaignStart = campaignData.campaignStart || new Date().toISOString().split('T')[0];
-            const startDate = new Date(campaignStart);
-            // Campaign ends 8 weeks (56 days) after start
-            const endDate = new Date(startDate.getTime() + (56 * 24 * 60 * 60 * 1000));
+            // Campaign ends at midnight March 16th, 2026
+            const endDate = new Date('2026-03-16T00:00:00');
             const now = new Date();
             const diff = endDate - now;
 
@@ -2161,8 +2171,8 @@
             const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-            document.getElementById('countdown-timer').textContent =
-                `${days}d ${hours}h ${minutes}m ${seconds}s`;
+            document.getElementById('countdown-timer').innerHTML =
+                `<span class="countdown-days">${days}d</span> <span class="countdown-time">${hours}h ${minutes}m ${seconds}s</span>`;
         }
 
         // Start countdown timer
