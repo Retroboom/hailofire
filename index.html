@@ -2414,8 +2414,8 @@
 
         // Countdown timer
         function updateCountdown() {
-            // Campaign ends at midnight March 16th, 2026
-            const endDate = new Date('2026-03-16T00:00:00');
+            // Campaign ends at midnight March 16th, 2026 EST (UTC-5)
+            const endDate = new Date('2026-03-16T05:00:00Z'); // Midnight EST = 5am UTC
             const now = new Date();
             const diff = endDate - now;
 
