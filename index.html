@@ -1439,7 +1439,6 @@
                                 <th>Rerolls</th>
                                 <th>Games</th>
                                 <th>Wins</th>
-                                <th>Win %</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -2470,7 +2469,7 @@
                             <div class="leaderboard-name">${p.name}</div>
                             <div class="leaderboard-stats">
                                 <span class="badge ${p.side.toLowerCase()}">${p.side}</span>
-                                ${p.games}G / ${p.wins}W (${p.winRate}%)
+                                ${p.games}G / ${p.wins}W
                             </div>
                         </div>
                         <div class="leaderboard-coins">
@@ -2517,7 +2516,6 @@
                     <td>${p.rerolls}</td>
                     <td>${p.games}</td>
                     <td>${p.wins}</td>
-                    <td>${p.winRate}%</td>
                     <td>
                         <div class="action-buttons">
                             ${isAdmin ? `<button onclick="showEditPlayerModal('${p.name}')">Edit</button>` : '-'}
