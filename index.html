@@ -94,16 +94,22 @@
         }
 
         header h1 {
-            font-family: 'Black Ops One', cursive;
-            font-size: 2.5rem;
+            font-family: 'Bad Grunge', 'Black Ops One', cursive;
+            font-size: 5.5rem;
             color: var(--text-primary);
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 8px;
+            word-spacing: 0px;
+            line-height: 0.8;
         }
 
         header h1 span {
-            color: var(--text-primary);
+            font-size: 1.8rem;
+            letter-spacing: 4px;
+            word-spacing: 0px;
+            display: block;
+            margin-top: -0.5rem;
         }
 
         .stats-banner {
@@ -564,56 +570,111 @@
         .leaderboard-item {
             display: flex;
             align-items: center;
-            padding: 1rem;
+            padding: 0.5rem 0.75rem;
             background: var(--bg-dark);
             border-radius: 2px;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.25rem;
             border-left: 3px solid var(--olive);
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            gap: 0.75rem;
         }
 
         .leaderboard-rank {
             font-family: 'Black Ops One', cursive;
-            font-size: 1.5rem;
+            font-size: 1.1rem;
             font-weight: bold;
-            width: 50px;
             color: var(--gold);
         }
 
         .leaderboard-info {
             flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
         }
 
         .leaderboard-name {
             font-family: 'Oswald', sans-serif;
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: bold;
             text-transform: uppercase;
         }
 
         .leaderboard-stats {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--text-secondary);
         }
 
         .leaderboard-coins {
             text-align: right;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .leaderboard-coins .coins {
             font-family: 'Black Ops One', cursive;
-            font-size: 1.5rem;
+            font-size: 1.1rem;
             font-weight: bold;
             color: var(--gold);
         }
 
         .leaderboard-coins .coins::before {
-            content: '🪙 ';
+            content: '';
+            display: inline-block;
+            width: 1.2em;
+            height: 1.2em;
+            margin-right: 0.3em;
+            vertical-align: middle;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cellipse cx='50' cy='55' rx='40' ry='12' fill='%23a07d1c'/%3E%3Cellipse cx='50' cy='45' rx='40' ry='40' fill='%23e6b422'/%3E%3Cellipse cx='50' cy='45' rx='32' ry='32' fill='none' stroke='%23c9a227' stroke-width='4'/%3E%3Ccircle cx='50' cy='45' r='20' fill='none' stroke='%23c9a227' stroke-width='3'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
         }
 
         .leaderboard-coins .rerolls {
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             color: var(--text-secondary);
+            white-space: nowrap;
+        }
+
+        /* Rules Page Styling */
+        #rules p,
+        #rules li {
+            color: var(--text-primary);
+            line-height: 1.7;
+            font-family: 'Segoe UI', 'Roboto', sans-serif;
+            font-weight: 400;
+        }
+
+        #rules ul,
+        #rules ol {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        #rules li {
+            margin-bottom: 0.4rem;
+        }
+
+        #rules h3 {
+            color: var(--accent);
+            font-size: 1.1rem;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+
+        #rules .card {
+            margin-bottom: 1.5rem;
+        }
+
+        #rules strong {
+            color: var(--gold);
+        }
+
+        #rules table td {
+            color: var(--text-primary);
         }
 
         /* Discord Output */
@@ -789,7 +850,12 @@
     <div class="header-top-bar"></div>
     <header>
         <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
-            <h1>Hail of Fire: <span>Operation Overlord Campaign</span></h1>
+            <img src="hailoffirecampaigntitle.png" alt="Hail of Fire - Operation Overlord Campaign" style="height: 110px;">
+            <span style="display: flex; align-items: center; gap: 0.5rem; white-space: nowrap;">
+                <span style="font-family: 'Oswald', sans-serif; font-size: 2.5rem; color: var(--text-secondary); margin: 0 0.5rem;">at</span>
+                <img src="gobbo.png" alt="Waterloo Games" style="height: 90px;">
+                <span style="font-family: 'Black Ops One', cursive; font-size: 2.5rem; color: var(--text-primary);">Waterloo Games</span>
+            </span>
             <span class="admin-badge admin-only-inline" style="display: none;">ADMIN</span>
         </div>
     </header>
@@ -837,28 +903,30 @@
     <main>
         <!-- Campaign Map Tab (combined dashboard + map) -->
         <div id="map" class="tab-content active">
-            <!-- Campaign Status and Leaderboard -->
+            <!-- City Control and Leaderboard -->
             <div class="grid-2">
                 <div class="card">
-                    <h2>Campaign Status</h2>
-                    <div style="display: flex; gap: 2rem; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                    <h2>City Control</h2>
+                    <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1rem;">Control all 7 cities for 7 days to win, or control the most cities by Week 8.</p>
+
+                    <!-- City Control -->
+                    <div style="display: flex; gap: 0.5rem; align-items: center; justify-content: center; margin-bottom: 1rem;">
                         <div style="text-align: center;">
-                            <div style="font-size: 2.5rem; font-weight: bold; color: var(--allied-light);" id="allied-cities">0</div>
-                            <div style="color: var(--text-secondary);">Allied Cities</div>
+                            <div style="font-size: 2.5rem; font-weight: bold; color: var(--allied-light); line-height: 1;" id="allied-cities">0</div>
+                            <div style="color: var(--text-secondary); font-size: 0.85rem;">Allied Cities</div>
                         </div>
-                        <div style="font-size: 1.5rem; color: var(--text-secondary);">vs</div>
+                        <div style="font-size: 1.2rem; color: var(--text-secondary); padding: 0 1rem;">vs</div>
                         <div style="text-align: center;">
-                            <div style="font-size: 2.5rem; font-weight: bold; color: var(--axis-light);" id="axis-cities">7</div>
-                            <div style="color: var(--text-secondary);">Axis Cities</div>
+                            <div style="font-size: 2.5rem; font-weight: bold; color: var(--axis-light); line-height: 1;" id="axis-cities">7</div>
+                            <div style="color: var(--text-secondary); font-size: 0.85rem;">Axis Cities</div>
                         </div>
                     </div>
-                    <div id="city-status"></div>
+                    <div id="city-status" style="text-align: center;"></div>
                 </div>
 
                 <div class="card">
-                    <h2>Leaderboard (Top 5)</h2>
+                    <h2>Leaderboard (Top 3)</h2>
                     <div id="top-players"></div>
-                    <button class="secondary mt-1" data-tab="players">View All Players</button>
                 </div>
             </div>
 
@@ -922,35 +990,83 @@
 
         <!-- Rules Tab -->
         <div id="rules" class="tab-content">
-            <div class="card">
-                <h2>Campaign Overview</h2>
-                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
-                    This is a flexible, map-based campaign where players fight for control of Normandy over 8 weeks. Players schedule games at their convenience, fight for sectors on the campaign map, and earn raffle coins for recognition and potential prizes.
-                </p>
-                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
-                    The campaign is designed to specifically accommodate any level of participation - play one game or twenty!
-                </p>
+            <div class="grid-2">
+                <div class="card">
+                    <h2>Campaign Overview</h2>
+                    <p>
+                        This is a flexible, map-based campaign where players fight for control of Normandy over 8 weeks. Players schedule games at their convenience, fight for sectors on the campaign map, and earn raffle coins for recognition and potential prizes.
+                    </p>
+                    <p>
+                        The campaign is designed to specifically accommodate any level of participation - play one game or twenty!
+                    </p>
 
-                <h3>Core Principles</h3>
-                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
-                    <li>Play as much or as little as you want</li>
-                    <li>Bring whatever forces you want (within reason)</li>
-                    <li>Change your army between games freely</li>
-                    <li>Everyone has a fair shot at recognition and prizes</li>
-                    <li>Earn bonus coins by supporting the store</li>
-                </ul>
+                    <h3>Core Principles</h3>
+                    <ul>
+                        <li>Play as much or as little as you want</li>
+                        <li>Bring whatever forces you want (within reason)</li>
+                        <li>Change your army between games freely</li>
+                        <li>Everyone has a fair shot at recognition and prizes</li>
+                        <li>Earn bonus coins by supporting the store</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h2>Scoring System</h2>
+                    <p>Coins track your contribution and serve as raffle entries at campaign end.</p>
+
+                    <h3>How to Earn Coins</h3>
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 0.5rem;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid var(--olive);">
+                                <th style="text-align: left; padding: 0.4rem; color: var(--accent);">Action</th>
+                                <th style="text-align: center; padding: 0.4rem; color: var(--accent);">Coins</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid var(--bg-light);">
+                                <td style="padding: 0.4rem;">Play game + post pics on Discord</td>
+                                <td style="text-align: center; padding: 0.4rem;">+1</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--bg-light);">
+                                <td style="padding: 0.4rem;">Share pics online & tag Waterloo Games</td>
+                                <td style="text-align: center; padding: 0.4rem;">+1</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--bg-light);">
+                                <td style="padding: 0.4rem;">Every $30 spent at store (per receipt)*</td>
+                                <td style="text-align: center; padding: 0.4rem;">+1</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--bg-light);">
+                                <td style="padding: 0.4rem;">Paint/assemble models in store</td>
+                                <td style="text-align: center; padding: 0.4rem;">+1 per session</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--bg-light);">
+                                <td style="padding: 0.4rem;">Use newly purchased model in game</td>
+                                <td style="text-align: center; padding: 0.4rem;">+2 (one-time)</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--bg-light);">
+                                <td style="padding: 0.4rem;">Bring new player for first HoF game</td>
+                                <td style="text-align: center; padding: 0.4rem;">+2</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--bg-light);">
+                                <td style="padding: 0.4rem;">If that new player joins campaign</td>
+                                <td style="text-align: center; padding: 0.4rem;">+2 additional</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p style="font-size: 0.85rem; margin: 0;">*$93 receipt = 3 coins. Smaller receipts can't be combined.</p>
+                </div>
             </div>
 
             <div class="card">
                 <h2>Joining the Campaign</h2>
                 <h3>To Join</h3>
-                <ol style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                <ol>
                     <li>Declare your forces: <strong>Axis</strong> or <strong>Allied</strong></li>
                     <li>Add your name to the campaign roster (Discord/store)</li>
                     <li>Start scheduling games!</li>
                 </ol>
-                <p style="color: var(--text-secondary);">
-                    <strong>Your declared side determines:</strong> Which "winning side" raffle you're eligible for at campaign end. That's it. If need be, you can still play games representing either side during the campaign.
+                <p>
+                    <strong>Your declared side determines:</strong> Which raffle you're eligible for at campaign end. That's it. If need be, you can still play games representing either side during the campaign.
                 </p>
             </div>
 
@@ -958,32 +1074,32 @@
                 <h2>Scheduling & Playing Games</h2>
 
                 <h3>Step 1: Schedule a Game</h3>
-                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                <ul>
                     <li>Contact another campaign participant (Discord/in-store)</li>
                     <li>Agree on date/time to play</li>
                     <li>Determine who will play Allied and who will play Axis for this game</li>
                 </ul>
 
                 <h3>Step 2: Roll for Initiative</h3>
-                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                <ul>
                     <li>Both players roll 1d6</li>
                     <li><strong>Allied player adds +1 to their roll and wins ties</strong></li>
                     <li>High roll wins initiative</li>
                 </ul>
 
                 <h3>Step 3: Winner Chooses Battlefield</h3>
-                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                <ul>
                     <li>Initiative winner declares which friendly sector will be attacking which adjacent enemy sector (paradrops excepted)</li>
                     <li><strong>Important:</strong> If the attacker loses the battle, they lose the sector they attacked FROM</li>
                 </ul>
 
                 <h3>Step 4: Build Your Forces</h3>
-                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                <p>
                     Build any force you want. You can use the Force Parity Procedure to balance the scenario.
                 </p>
 
                 <h3>Step 5: Meet & Reveal Forces</h3>
-                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                <ul>
                     <li>Show each other your forces</li>
                     <li>Count vehicle teams (tanks, half-tracks, armored cars, etc.)</li>
                     <li><strong>Player with more vehicles = Scenario Attacker</strong></li>
@@ -992,21 +1108,21 @@
                 </ul>
 
                 <h3>Step 6: Calculate Modifiers</h3>
-                <p style="color: var(--text-secondary); margin-bottom: 1rem;">See "Breakpoint Modifiers" section below</p>
+                <p>See "Breakpoint Modifiers" section below</p>
 
                 <h3>Step 7: Play the Game</h3>
-                <p style="color: var(--text-secondary); margin-bottom: 1rem;">Standard Hail of Fire game using chosen forces</p>
+                <p>Standard Hail of Fire game using chosen forces</p>
 
                 <h3>Step 8: Resolve Sector Control</h3>
-                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                <ul>
                     <li>Winner captures the loser's sector</li>
                     <li><strong>Exception:</strong> Landing sectors (Utah, Omaha, Gold, Juno, Sword) cannot be captured by Axis - if Axis would capture a landing sector, no sector changes hands</li>
                     <li>Update store map immediately (move pins)</li>
                 </ul>
 
                 <h3>Step 9: Report Results</h3>
-                <p style="color: var(--text-secondary); margin-bottom: 0.5rem;">Both players post to Discord:</p>
-                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                <p>Both players post to Discord:</p>
+                <ul>
                     <li>[SECTOR NAME/CODE] - [Winner] defeats [Loser]</li>
                     <li>Initiative: [Who won roll-off]</li>
                     <li>Attack: [Sector attacked] FROM [Sector attacked from]</li>
@@ -1020,45 +1136,45 @@
                 <h2>Map Mechanics</h2>
 
                 <h3>Sector Control - Starting Positions</h3>
-                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                <ul>
                     <li><strong>Allied starting sectors:</strong> Utah, Omaha, Gold, Juno, Sword (5 landing sectors)</li>
                     <li><strong>German starting sectors:</strong> All other sectors on the map</li>
                     <li>Most of the map begins under German control</li>
                 </ul>
 
                 <h3>Adjacency Bonuses (Attacker Only)</h3>
-                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                <ul>
                     <li><strong>+1 Breakpoint</strong> for each additional friendly sector bordering the target after the first (the sector you're attacking from)</li>
                     <li><strong>Maximum +2 Breakpoint</strong> (even if you control more sectors)</li>
                 </ul>
-                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                <p>
                     <strong>Example:</strong> Allies attack Caen from E2. Caen has 6 bordering sectors total. Allies control E1, E2, E3, and E4 (3 additional sectors). Allied adjacency bonus would be +3, capped at <strong>+2 BP</strong>. German adjacency bonus: 0 BP (defender never receives adjacency bonus).
                 </p>
-                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                <p>
                     <strong>Strategic Note:</strong> Controlling 2+ sectors around a target maximizes your adjacency bonus. Beyond that, additional sectors don't increase BP but may serve other strategic purposes (cutting supply, opening new attack routes).
                 </p>
 
                 <h3>Supply Lines</h3>
-                <p style="color: var(--text-secondary); margin-bottom: 0.5rem;">
+                <p>
                     A sector is <strong>supplied</strong> if the shortest path to a supply source uses only friendly sectors.
                 </p>
-                <p style="color: var(--text-secondary); margin-bottom: 0.5rem;"><strong>Supply Sources:</strong></p>
-                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                <p><strong>Supply Sources:</strong></p>
+                <ul>
                     <li><strong>Allied:</strong> Utah, Omaha, Gold, Juno, Sword, or captured paradrop sectors</li>
                     <li><strong>Axis:</strong> C7, D8, or E9</li>
                 </ul>
-                <p style="color: var(--text-secondary); margin-bottom: 0.5rem;"><strong>How to Check:</strong></p>
-                <ol style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                <p><strong>How to Check:</strong></p>
+                <ol>
                     <li>Count sectors to your nearest supply source</li>
                     <li>If multiple paths tie for shortest, you only need ONE of them to be all friendly</li>
                     <li>That shortest route must be all friendly sectors - longer routes don't count</li>
                 </ol>
-                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                <p>
                     <strong>Unsupplied Penalty:</strong> Reduce the Morale of all units by 1
                 </p>
 
                 <h3>Landing Sectors</h3>
-                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                <ul>
                     <li>Landing sectors: <strong>Utah, Omaha, Gold, Juno, Sword</strong> (the 5 Allied starting positions)</li>
                     <li>Landing sectors always count as Allied supply sources</li>
                     <li>If Axis win a battle where the Allied attack originated from a landing sector, the landing sector remains Allied</li>
@@ -1067,12 +1183,12 @@
                 </ul>
 
                 <h3>Flooded Sectors</h3>
-                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                <p>
                     If paradropping into flooded sector: <strong>-1 BP</strong> additional penalty
                 </p>
 
                 <h3>Terrain (Farmland, Bocage, City, Flooded)</h3>
-                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                <ul>
                     <li>Suggested terrain for your table setup, but not at all required</li>
                     <li>Players may agree to house rules if desired</li>
                 </ul>
@@ -1080,27 +1196,27 @@
 
             <div class="card">
                 <h2>Paradrop Rules</h2>
-                <p style="color: var(--text-secondary); margin-bottom: 1rem;">Allied players may conduct paradrops:</p>
+                <p>Allied players may conduct paradrops:</p>
 
                 <h3>Requirements</h3>
-                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                <ul>
                     <li>Win the initiative roll (1d6+1 vs opponent's 1d6)</li>
                     <li>Choose any German sector NOT adjacent to Allied sectors</li>
                     <li><strong>Choose an enemy-adjacent, non-landing Allied sector the attack originates from.</strong> That sector is captured if the paradrop fails</li>
                 </ul>
 
                 <h3>Restrictions</h3>
-                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                <p>
                     <strong>No Vehicles</strong> - Infantry and light guns only
                 </p>
 
                 <h3>Flooded Sector Paradrop</h3>
-                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                <p>
                     <strong>-1 Breakpoint</strong> penalty to Allies (difficult landing conditions)
                 </p>
 
                 <h3>Results</h3>
-                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                <ul>
                     <li><strong>Allied victory:</strong> Sector becomes Allied-controlled AND becomes an Allied supply source (like landing sectors)</li>
                     <li><strong>German victory:</strong> Germans capture the Allied sector the paradrop originated from</li>
                 </ul>
@@ -1108,7 +1224,7 @@
 
             <div class="card">
                 <h2>Breakpoint Modifiers</h2>
-                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                <ul>
                     <li><strong>Initiative Winner:</strong> +1 BP per additional friendly sector bordering the target (beyond sector attacking from), maximum +2 BP</li>
                     <li><strong>Allies Only:</strong> Flat +2 BP if fighting from a landing sector (Utah, Omaha, Gold, Juno, Sword)</li>
                     <li><strong>Flooded Sector Paradrop:</strong> -1 BP penalty to Allies (difficult landing conditions)</li>
@@ -1117,17 +1233,18 @@
 
             <div class="card">
                 <h2>Scoring System</h2>
-                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                <p>
                     Coins track your campaign contribution and determine awards and prizes.
                 </p>
 
                 <h3>Coins (How to Earn)</h3>
-                <p style="color: var(--text-secondary); margin-bottom: 0.5rem;"><strong>Playing Games:</strong></p>
-                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                <p><strong>Playing Games:</strong></p>
+                <ul>
                     <li>Play a game and report it and post pictures on Discord: <strong>+1 coin</strong></li>
+                    <li>Share pictures of your game online and tag Waterloo Games: <strong>+1 coin</strong></li>
                 </ul>
 
-                <p style="color: var(--text-secondary); margin-bottom: 0.5rem;"><strong>Store Patronage Bonuses:</strong></p>
+                <p><strong>Store Patronage Bonuses:</strong></p>
                 <table style="width: 100%; border-collapse: collapse; margin-bottom: 1rem;">
                     <thead>
                         <tr style="border-bottom: 2px solid var(--olive);">
@@ -1135,9 +1252,9 @@
                             <th style="text-align: center; padding: 0.5rem; color: var(--accent);">Coins</th>
                         </tr>
                     </thead>
-                    <tbody style="color: var(--text-secondary);">
+                    <tbody>
                         <tr style="border-bottom: 1px solid var(--bg-light);">
-                            <td style="padding: 0.5rem;">Every $30 spent at store during campaign</td>
+                            <td style="padding: 0.5rem;">Every $30 spent at store during campaign (per receipt)</td>
                             <td style="text-align: center; padding: 0.5rem;">+1 (repeatable)</td>
                         </tr>
                         <tr style="border-bottom: 1px solid var(--bg-light);">
@@ -1158,35 +1275,38 @@
                         </tr>
                     </tbody>
                 </table>
-                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                <p>
+                    <strong>Note on store purchases:</strong> Coins are calculated per receipt. A $93 receipt = 3 coins. However, multiple smaller receipts cannot be combined (e.g., three $20 receipts do not equal $60).
+                </p>
+                <p>
                     <strong>Important:</strong> Coins accumulate throughout entire campaign. Coins serve as raffle entries at campaign's end.
                 </p>
             </div>
 
             <div class="card">
                 <h2>Campaign Veteran Status</h2>
-                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                <p>
                     As you participate in the campaign, your accumulated experience translates into in-game advantages.
                 </p>
 
                 <h3>How It Works</h3>
-                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                <p>
                     <strong>For every 4 coins you've earned, you gain 1 reroll to use during a game.</strong>
                 </p>
-                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                <ul>
                     <li>Calculate: Total coins ÷ 4 (round down)</li>
                     <li>Example: 10 coins = 2 rerolls available</li>
                     <li>Example: 16 coins = 4 rerolls available</li>
                 </ul>
 
                 <h3>Using Rerolls</h3>
-                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                <ul>
                     <li>Rerolls can be used <strong>at any point during the game</strong></li>
                     <li>Apply to <strong>any single die roll</strong> (to-hit, damage, morale, etc.)</li>
                     <li>You choose when to spend them</li>
                     <li>All rerolls refresh each game (don't carry between games)</li>
                 </ul>
-                <p style="color: var(--text-secondary);">
+                <p>
                     Announce your reroll count to your opponent before the game starts.
                 </p>
             </div>
@@ -1195,19 +1315,19 @@
                 <h2>Victory Conditions & Map Resets</h2>
 
                 <h3>Campaign Victory Occurs When</h3>
-                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                <ul>
                     <li>Allies control all 7 city sectors for 7 consecutive days, OR</li>
                     <li><strong>Week 8 is reached</strong> (whoever controls more city sectors wins)</li>
                 </ul>
 
                 <h3>When Victory Happens</h3>
-                <ol style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                <ol>
                     <li>Winning side announced</li>
                     <li>Final map photo posted with narrative conclusion</li>
                 </ol>
 
                 <h3>Map Reset (if needed before Week 8)</h3>
-                <ol style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                <ol>
                     <li>Keep all earned coins (they carry forward!)</li>
                     <li>Reset map to starting positions</li>
                     <li>Continue as "Season 2"</li>
@@ -1219,7 +1339,7 @@
                 <h2>Quick Reference</h2>
 
                 <h3>Game Sequence Checklist</h3>
-                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                <ul>
                     <li>☐ Schedule with opponent, determine who plays which side</li>
                     <li>☐ Roll for initiative (Allied +1, wins ties)</li>
                     <li>☐ Winner picks which sector is attacking which sector</li>
@@ -1232,7 +1352,7 @@
                 </ul>
 
                 <h3>Breakpoint Modifiers Summary</h3>
-                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                <ul>
                     <li>Attacker: +1 BP per additional friendly sector bordering target (max +2)</li>
                     <li>Allies: +2 BP in landing sectors (Utah, Omaha, Gold, Juno, Sword)</li>
                     <li>Paradrops: Allies -1 BP if flooded</li>
@@ -1240,10 +1360,10 @@
                 </ul>
 
                 <h3>Unsupplied Penalty</h3>
-                <p style="color: var(--text-secondary); margin-bottom: 1rem;">Reduce Morale by 1</p>
+                <p>Reduce Morale by 1</p>
 
                 <h3>Scoring Quick Math</h3>
-                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                <ul>
                     <li>Play game: +1 coin</li>
                     <li>Purchase $30 at store: +1 coin (repeatable)</li>
                     <li>Paint in store: +1 coin per session (max 3)</li>
@@ -2261,8 +2381,11 @@
             const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
+            const hh = String(hours).padStart(2, '0');
+            const mm = String(minutes).padStart(2, '0');
+            const ss = String(seconds).padStart(2, '0');
             document.getElementById('countdown-timer').innerHTML =
-                `<span class="countdown-days">${days}d</span> <span class="countdown-time">${hours}h ${minutes}m ${seconds}s</span>`;
+                `<span class="countdown-days">${days}d</span> <span class="countdown-time">${hh}h ${mm}m ${ss}s</span>`;
         }
 
         // Start countdown timer
@@ -2288,7 +2411,7 @@
                 .filter(p => p.side !== 'Reserve')
                 .map(p => ({ ...p, ...getPlayerStats(p.name) }))
                 .sort((a, b) => b.coins - a.coins)
-                .slice(0, 5);
+                .slice(0, 3);
 
             document.getElementById('top-players').innerHTML = players.length === 0
                 ? '<p style="color: var(--text-secondary);">No players yet. Add players to get started!</p>'
