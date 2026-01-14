@@ -1193,13 +1193,13 @@
                 <h3>Adjacency Bonuses (Attacker Only)</h3>
                 <ul>
                     <li><strong>+1 Breakpoint</strong> for each additional friendly sector bordering the target after the first (the sector you're attacking from)</li>
-                    <li><strong>Maximum +2 Breakpoint</strong> (even if you control more sectors)</li>
+                    <li><strong>Maximum +4 Breakpoint</strong> (even if you control more sectors)</li>
                 </ul>
                 <p>
-                    <strong>Example:</strong> Allies attack Caen from E2. Caen has 6 bordering sectors total. Allies control E1, E2, E3, and E4 (3 additional sectors). Allied adjacency bonus would be +3, capped at <strong>+2 BP</strong>. German adjacency bonus: 0 BP (defender never receives adjacency bonus).
+                    <strong>Example:</strong> Allies attack Caen from E2. Caen has 6 bordering sectors total. Allies control E1, E2, E3, E4, and E5 (4 additional sectors). Allied adjacency bonus would be +4, capped at <strong>+4 BP</strong>. German adjacency bonus: 0 BP (defender never receives adjacency bonus).
                 </p>
                 <p>
-                    <strong>Strategic Note:</strong> Controlling 2+ sectors around a target maximizes your adjacency bonus. Beyond that, additional sectors don't increase BP but may serve other strategic purposes (cutting supply, opening new attack routes).
+                    <strong>Strategic Note:</strong> Controlling 4+ sectors around a target maximizes your adjacency bonus. Beyond that, additional sectors don't increase BP but may serve other strategic purposes (cutting supply, opening new attack routes).
                 </p>
 
                 <h3>Supply Lines</h3>
@@ -2415,11 +2415,25 @@
         function updateCountdown() {
             // Campaign starts January 16th, 2026 at 12 noon EST (UTC-5)
             const startDate = new Date('2026-01-16T17:00:00Z'); // Noon EST = 5pm UTC
+            // Campaign ends March 16th, 2026 at midnight EST (UTC-5)
+            const endDate = new Date('2026-03-16T05:00:00Z'); // Midnight EST = 5am UTC
             const now = new Date();
-            const diff = startDate - now;
 
-            if (diff <= 0) {
-                document.getElementById('countdown-timer').textContent = 'CAMPAIGN STARTED';
+            const label = document.querySelector('.stat-item.countdown .label');
+            let diff;
+
+            if (now < startDate) {
+                // Before campaign starts - count down to start
+                label.textContent = 'Campaign Starts In';
+                diff = startDate - now;
+            } else if (now < endDate) {
+                // Campaign is running - count down to end
+                label.textContent = 'Campaign Ends In';
+                diff = endDate - now;
+            } else {
+                // Campaign has ended
+                label.textContent = 'Campaign Status';
+                document.getElementById('countdown-timer').textContent = 'CAMPAIGN ENDED';
                 return;
             }
 
