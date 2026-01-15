@@ -942,8 +942,8 @@
             <button data-tab="players">Players</button>
             <button data-tab="games">Games</button>
             <button data-tab="submit">Submit Game Results</button>
-            <button data-tab="coins" class="admin-only" style="display: none;">Coins</button>
-            <button data-tab="data" class="admin-only" style="display: none;">Import/Export</button>
+            <button data-tab="coins" class="admin-only">Coins</button>
+            <button data-tab="data" class="admin-only">Import/Export</button>
         </div>
         <button data-tab="admin" style="opacity: 0.5; font-size: 0.85em;">Admin</button>
     </nav>
@@ -1426,7 +1426,7 @@
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                     <h2 style="margin: 0; border: none; padding: 0;">Player Roster</h2>
-                    <button class="admin-only" onclick="showAddPlayerModal()" style="display: none;">Add Player</button>
+                    <button class="admin-only" onclick="showAddPlayerModal()">Add Player</button>
                 </div>
                 <div style="overflow-x: auto;">
                     <table id="players-table">
@@ -1439,7 +1439,7 @@
                                 <th>Rerolls</th>
                                 <th>Games</th>
                                 <th>Wins</th>
-                                <th>Actions</th>
+                                <th class="admin-only">Actions</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -1454,7 +1454,7 @@
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                     <h2 style="margin: 0; border: none; padding: 0;">Game History</h2>
-                    <button class="admin-only" onclick="showNewGameModal()" style="display: none;">Record New Game</button>
+                    <button class="admin-only" onclick="showNewGameModal()">Record New Game</button>
                 </div>
                 <div style="overflow-x: auto;">
                     <table id="games-table">
@@ -2524,17 +2524,17 @@
             let html = players.map((p, i) => `
                 <tr>
                     <td>${i + 1}</td>
-                    <td><strong>${p.name}</strong></td>
+                    <td><strong><a href="#" onclick="showPlayerCoins('${p.name}'); return false;" style="color: var(--text-primary); text-decoration: underline; cursor: pointer;">${p.name}</a></strong></td>
                     <td><span class="badge ${p.side.toLowerCase()}">${p.side}</span></td>
                     <td><strong style="color: var(--gold);">${p.coins}</strong></td>
                     <td>${p.rerolls}</td>
                     <td>${p.games}</td>
                     <td>${p.wins}</td>
-                    <td>
+                    ${isAdmin ? `<td>
                         <div class="action-buttons">
-                            ${isAdmin ? `<button onclick="showEditPlayerModal('${p.name}')">Edit</button>` : '-'}
+                            <button onclick="showEditPlayerModal('${p.name}')">Edit</button>
                         </div>
-                    </td>
+                    </td>` : ''}
                 </tr>
             `).join('');
 
@@ -2542,22 +2542,73 @@
             html += reservePlayers.map(p => `
                 <tr style="opacity: 0.7;">
                     <td>-</td>
-                    <td><strong>${p.name}</strong></td>
+                    <td><strong><a href="#" onclick="showPlayerCoins('${p.name}'); return false;" style="color: var(--text-primary); text-decoration: underline; cursor: pointer;">${p.name}</a></strong></td>
                     <td><span class="badge reserve" style="background: var(--bg-light); color: var(--text-secondary);">Reserve</span></td>
                     <td>-</td>
                     <td>-</td>
                     <td>-</td>
                     <td>-</td>
-                    <td>-</td>
-                    <td>
+                    ${isAdmin ? `<td>
                         <div class="action-buttons">
-                            ${isAdmin ? `<button onclick="showEditPlayerModal('${p.name}')">Edit</button>` : '-'}
+                            <button onclick="showEditPlayerModal('${p.name}')">Edit</button>
                         </div>
-                    </td>
+                    </td>` : ''}
                 </tr>
             `).join('');
 
             tbody.innerHTML = html;
+        }
+
+        function showPlayerCoins(playerName) {
+            const transactions = (campaignData.coins || [])
+                .filter(c => c.player === playerName)
+                .slice()
+                .reverse();
+
+            let content = '';
+            if (transactions.length === 0) {
+                content = '<p style="color: var(--text-secondary);">No coin transactions found for this player.</p>';
+            } else {
+                content = `
+                    <table style="width: 100%;">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Coins</th>
+                                <th>Reason</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${transactions.map(c => `
+                                <tr>
+                                    <td>${c.date}</td>
+                                    <td><strong style="color: var(--gold);">+${c.amount}</strong></td>
+                                    <td>${c.reason}</td>
+                                    <td>${c.notes || '-'}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            // Create modal
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 1000;';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 600px;">
+                    <h2 style="margin-top: 0;">${playerName}'s Coin History</h2>
+                    ${content}
+                    <div style="text-align: right; margin-top: 1rem;">
+                        <button onclick="this.closest('div[style]').remove()">Close</button>
+                    </div>
+                </div>
+            `;
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) modal.remove();
+            });
+            document.body.appendChild(modal);
         }
 
         function renderGames() {
@@ -2894,7 +2945,11 @@ Allied: ${allied} | Axis: ${axis}
         function updateAdminUI() {
             // Show/hide admin-only elements
             document.querySelectorAll('.admin-only').forEach(el => {
-                el.style.display = isAdmin ? '' : 'none';
+                if (el.tagName === 'BUTTON') {
+                    el.style.display = isAdmin ? 'inline-block' : 'none';
+                } else {
+                    el.style.display = isAdmin ? 'block' : 'none';
+                }
             });
             document.querySelectorAll('.admin-only-inline').forEach(el => {
                 el.style.display = isAdmin ? 'inline' : 'none';
