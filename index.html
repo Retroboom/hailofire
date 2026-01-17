@@ -1578,18 +1578,24 @@
                         </div>
                         <div>
                             <label>Your Name</label>
-                            <input type="text" id="submit-player-name" required placeholder="Enter your name">
+                            <select id="submit-player-name" required>
+                                <option value="">Select your name...</option>
+                            </select>
                         </div>
                     </div>
 
                     <div class="grid-2">
                         <div>
                             <label>Allied Player</label>
-                            <input type="text" id="submit-allied-player" required>
+                            <select id="submit-allied-player" required>
+                                <option value="">Select Allied player...</option>
+                            </select>
                         </div>
                         <div>
                             <label>Axis Player</label>
-                            <input type="text" id="submit-axis-player" required>
+                            <select id="submit-axis-player" required>
+                                <option value="">Select Axis player...</option>
+                            </select>
                         </div>
                     </div>
 
@@ -1632,6 +1638,18 @@
 
                     <button type="submit" style="margin-top: 1rem;">Submit for Approval</button>
                 </form>
+            </div>
+
+            <div class="card">
+                <h2>Campaign Map Reference</h2>
+                <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.5rem;">
+                    <span class="badge allied">Red = Allied</span>
+                    <span class="badge axis">Black = Axis</span>
+                </p>
+                <div class="map-container" id="submit-map-container">
+                    <img src="mapv3.jpg" alt="Campaign Map" id="submit-campaign-map">
+                    <div class="sector-overlay" id="submit-sector-overlay"></div>
+                </div>
             </div>
 
             <div class="card">
@@ -2392,6 +2410,7 @@
             renderPlayers();
             renderGames();
             renderCoins();
+            populateSubmitPlayerSelects();
         }
 
         function renderHeader() {
@@ -3003,6 +3022,7 @@ Allied: ${allied} | Axis: ${axis}
                     alert('Game submitted for approval! The campaign admin will review your submission.');
                     // Clear form
                     document.getElementById('submit-game-date').valueAsDate = new Date();
+                    document.getElementById('submit-player-name').value = '';
                     document.getElementById('submit-allied-player').value = '';
                     document.getElementById('submit-axis-player').value = '';
                     document.getElementById('submit-initiative').value = '';
@@ -3151,6 +3171,38 @@ Allied: ${allied} | Axis: ${axis}
 
             fromSelect.innerHTML = '<option value="">Select sector...</option>' + options;
             toSelect.innerHTML = '<option value="">Select sector...</option>' + options;
+        }
+
+        function populateSubmitPlayerSelects() {
+            const yourNameSelect = document.getElementById('submit-player-name');
+            const alliedSelect = document.getElementById('submit-allied-player');
+            const axisSelect = document.getElementById('submit-axis-player');
+
+            if (!yourNameSelect || !alliedSelect || !axisSelect) return;
+
+            // All players for "Your Name" (including Reserve)
+            const allPlayers = campaignData.players
+                .sort((a, b) => a.name.localeCompare(b.name));
+
+            const allOptions = allPlayers
+                .map(p => `<option value="${p.name}">${p.name} (${p.side})</option>`)
+                .join('');
+
+            yourNameSelect.innerHTML = '<option value="">Select your name...</option>' + allOptions;
+
+            // All players for Allied (show side so they know if someone is playing for the other team)
+            const alliedOptions = allPlayers
+                .map(p => `<option value="${p.name}">${p.name} (${p.side})</option>`)
+                .join('');
+
+            alliedSelect.innerHTML = '<option value="">Select Allied player...</option>' + alliedOptions;
+
+            // All players for Axis (show side so they know if someone is playing for the other team)
+            const axisOptions = allPlayers
+                .map(p => `<option value="${p.name}">${p.name} (${p.side})</option>`)
+                .join('');
+
+            axisSelect.innerHTML = '<option value="">Select Axis player...</option>' + axisOptions;
         }
 
         // Import/Export
@@ -3327,6 +3379,30 @@ Allied: ${allied} | Axis: ${axis}
                 };
                 cityControlList.appendChild(item);
             });
+
+            // Also render submit page map (read-only reference)
+            renderSubmitMap();
+        }
+
+        function renderSubmitMap() {
+            const overlay = document.getElementById('submit-sector-overlay');
+            if (!overlay) return;
+            overlay.innerHTML = '';
+
+            for (const [code, def] of Object.entries(SECTOR_DEFINITIONS)) {
+                const ctrl = campaignData.sectors[code]?.controller || 'Axis';
+                const pos = currentPositions[code] || { x: def.x, y: def.y };
+
+                const marker = document.createElement('div');
+                marker.className = `sector-marker ${ctrl.toLowerCase()} ${def.city ? 'city' : ''} ${def.landing ? 'landing' : ''}`;
+                marker.style.left = `${pos.x}%`;
+                marker.style.top = `${pos.y}%`;
+                marker.title = `${def.name} (${ctrl})`;
+                marker.dataset.code = def.name;
+                marker.style.cursor = 'default';
+
+                overlay.appendChild(marker);
+            }
         }
 
         // Drag functions
