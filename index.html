@@ -3351,8 +3351,8 @@ Allied: ${allied} | Axis: ${axis}
                 marker.style.left = `${pos.x}%`;
                 marker.style.top = `${pos.y}%`;
                 marker.title = `${def.name} (${ctrl})`;
-                marker.dataset.code = code;
-                marker.setAttribute('data-code', code);
+                marker.dataset.code = def.name;
+                marker.setAttribute('data-code', def.name);
 
                 // Different behavior in edit mode
                 if (editMode) {
