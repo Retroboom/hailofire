@@ -2615,13 +2615,14 @@
 
             // Create modal
             const modal = document.createElement('div');
+            modal.className = 'player-coins-modal';
             modal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 1000;';
             modal.innerHTML = `
                 <div class="modal-content" style="max-width: 600px;">
                     <h2 style="margin-top: 0;">${playerName}'s Coin History</h2>
                     ${content}
                     <div style="text-align: right; margin-top: 1rem;">
-                        <button onclick="this.closest('div[style]').remove()">Close</button>
+                        <button onclick="document.querySelector('.player-coins-modal').remove()">Close</button>
                     </div>
                 </div>
             `;
