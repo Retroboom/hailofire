@@ -892,6 +892,42 @@
             background: #f59e0b;
             color: #000;
         }
+        .event-banner {
+            background: #111;
+            color: var(--gold);
+            padding: 0.6rem 0;
+            overflow: hidden;
+            white-space: nowrap;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-top: 2px solid var(--gold);
+            border-bottom: 2px solid var(--gold);
+            text-shadow: 0 0 10px var(--gold), 0 0 20px rgba(212, 175, 55, 0.5);
+            margin: 0 0 1rem 0;
+            border-radius: 4px;
+        }
+
+        .event-banner-content {
+            display: inline-block;
+            animation: scroll-left 45s linear infinite;
+            padding-left: 100%;
+        }
+
+        @keyframes scroll-left {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+
+        .event-banner-content span {
+            display: inline-block;
+            padding: 0 1rem;
+        }
     </style>
 </head>
 <body>
@@ -973,8 +1009,15 @@
                 </div>
 
                 <div class="card">
-                    <h2>Leaderboard (Top 3)</h2>
+                    <h2>Leaderboard (Top 4)</h2>
                     <div id="top-players"></div>
+                </div>
+            </div>
+
+            <div class="event-banner">
+                <div class="event-banner-content">
+                    <span>••• WEEK 1 - INVASION BEGINS! — CLEAR SKIES OVER NORMANDY! All Allied forces receive Air Support •••</span>
+                    <span>••• WEEK 1 - INVASION BEGINS! — CLEAR SKIES OVER NORMANDY! All Allied forces receive Air Support •••</span>
                 </div>
             </div>
 
@@ -2258,17 +2301,24 @@
 
             const gamesAsAllied = campaignData.games.filter(g => g.alliedPlayer === name);
             const gamesAsAxis = campaignData.games.filter(g => g.axisPlayer === name);
-            const games = gamesAsAllied.length + gamesAsAxis.length;
+            const allGames = [...gamesAsAllied, ...gamesAsAxis];
+            const games = allGames.length;
 
             const wins = gamesAsAllied.filter(g => g.winner === 'Allied').length +
                         gamesAsAxis.filter(g => g.winner === 'Axis').length;
+
+            // Find most recent game date
+            const lastGameDate = allGames.length > 0
+                ? allGames.map(g => g.date).sort().reverse()[0]
+                : '0000-00-00';
 
             return {
                 coins,
                 rerolls: Math.floor(coins / 4),
                 games,
                 wins,
-                winRate: games > 0 ? Math.round((wins / games) * 100) : 0
+                winRate: games > 0 ? Math.round((wins / games) * 100) : 0,
+                lastGameDate
             };
         }
 
@@ -2491,8 +2541,8 @@
             const players = campaignData.players
                 .filter(p => p.side !== 'Reserve')
                 .map(p => ({ ...p, ...getPlayerStats(p.name) }))
-                .sort((a, b) => b.coins - a.coins)
-                .slice(0, 3);
+                .sort((a, b) => b.coins - a.coins || (b.games + b.wins) - (a.games + a.wins) || b.lastGameDate.localeCompare(a.lastGameDate))
+                .slice(0, 4);
 
             document.getElementById('top-players').innerHTML = players.length === 0
                 ? '<p style="color: var(--text-secondary);">No players yet. Add players to get started!</p>'
@@ -2534,7 +2584,7 @@
             const players = campaignData.players
                 .filter(p => p.side !== 'Reserve')
                 .map(p => ({ ...p, ...getPlayerStats(p.name) }))
-                .sort((a, b) => b.coins - a.coins);
+                .sort((a, b) => b.coins - a.coins || (b.games + b.wins) - (a.games + a.wins) || b.lastGameDate.localeCompare(a.lastGameDate));
 
             const reservePlayers = campaignData.players
                 .filter(p => p.side === 'Reserve')
