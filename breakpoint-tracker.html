@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hail of Fire - Break Point Tracker</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Oswald:wght@400;600;700&display=swap');
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --allied-color: #8b1e1e;
+            --allied-light: #c94444;
+            --axis-color: #36454f;
+            --axis-light: #5a6a72;
+            --bg-dark: #1a1a1a;
+            --bg-medium: #2a2a2a;
+            --text-primary: #e8e8e8;
+            --text-secondary: #999;
+            --gold: #c9a227;
+        }
+
+        body {
+            font-family: 'Oswald', sans-serif;
+            background: linear-gradient(135deg,
+                #1a1d21 0%,      /* dark charcoal */
+                #2a2d33 20%,     /* gunmetal */
+                #3a3f47 40%,     /* steel gray */
+                #2d3238 60%,     /* dark steel */
+                #3a3f47 75%,     /* steel gray */
+                #252a30 90%,     /* blue-gray */
+                #1a1d21 100%     /* dark charcoal */
+            );
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: var(--text-primary);
+        }
+
+        /* Toast Message */
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: var(--gold);
+            color: #000;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Setup Screen */
+        .setup-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .setup-screen h1 {
+            font-family: 'Black Ops One', cursive;
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .logo {
+            max-width: 800px;
+            width: 95%;
+            height: auto;
+            margin-bottom: 0.5rem;
+        }
+
+        .logo-small {
+            max-width: 450px;
+            width: 90%;
+            height: auto;
+            margin-bottom: 0.25rem;
+        }
+
+        .setup-screen .subtitle {
+            color: var(--gold);
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 6px;
+        }
+
+        .start-btn {
+            background: linear-gradient(180deg, #5d7245, #4a5a3a);
+            color: white;
+            border: none;
+            padding: 1.25rem 3rem;
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            border-radius: 4px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+            transition: all 0.2s;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.2);
+        }
+
+        .start-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Play Area */
+        .play-area {
+            display: none;
+            padding: 1rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .play-area.active {
+            display: block;
+        }
+
+        .header {
+            text-align: center;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .header h1 {
+            font-family: 'Black Ops One', cursive;
+            font-size: 2rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .header .subtitle {
+            color: var(--gold);
+            font-size: 1.6rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+        }
+
+        /* Player Panels */
+        .players-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 600px) {
+            .players-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .player-panel {
+            background: var(--bg-medium);
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            border-top: 4px solid;
+        }
+
+        .player-panel.allies {
+            border-top-color: var(--allied-color);
+        }
+
+        .player-panel.axis {
+            border-top-color: var(--axis-color);
+        }
+
+        .player-name {
+            font-family: 'Black Ops One', cursive;
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+        }
+
+        .player-panel.allies .player-name {
+            color: var(--allied-light);
+        }
+
+        .player-panel.axis .player-name {
+            color: var(--axis-light);
+        }
+
+        .button-row {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .generate-btn {
+            flex: 1;
+            padding: 1rem;
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .player-panel.allies .generate-btn {
+            background: linear-gradient(180deg, var(--allied-light), var(--allied-color));
+            color: white;
+        }
+
+        .player-panel.axis .generate-btn {
+            background: linear-gradient(180deg, var(--axis-light), var(--axis-color));
+            color: white;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .generate-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Rolling Animation */
+        .generate-btn.rolling {
+            animation: shake 0.3s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .toggle-score-btn {
+            background: transparent;
+            border: 1px solid var(--text-secondary);
+            color: var(--text-secondary);
+            padding: 0.5rem 1rem;
+            font-family: 'Oswald', sans-serif;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .toggle-score-btn:hover {
+            border-color: var(--text-primary);
+            color: var(--text-primary);
+        }
+
+        .score-section {
+            display: none;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .score-section.visible {
+            display: block;
+        }
+
+        .score-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.25rem;
+        }
+
+        .score-value {
+            font-family: 'Black Ops One', cursive;
+            font-size: 3rem;
+            color: var(--gold);
+            line-height: 1;
+            margin-bottom: 1rem;
+        }
+
+        .draws-label {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .draws-history {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        .draw-chip {
+            background: rgba(255,255,255,0.1);
+            padding: 0.25rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .draw-chip.bp-1 { color: #6b9b6b; }
+        .draw-chip.bp-2 { color: #c9a227; }
+        .draw-chip.bp-3 { color: #c94444; }
+
+        /* Last Roll Display */
+        .last-roll {
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .last-roll-label {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .last-roll-value {
+            font-family: 'Black Ops One', cursive;
+            font-size: 1.5rem;
+        }
+
+        .last-roll-value .die {
+            color: var(--text-secondary);
+        }
+
+        .last-roll-value .bp {
+            color: var(--gold);
+        }
+
+        /* Control Buttons */
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+            padding: 1rem;
+            background: var(--bg-medium);
+            border-radius: 8px;
+        }
+
+        .control-btn {
+            background: linear-gradient(180deg, #444, #333);
+            color: var(--text-primary);
+            border: none;
+            padding: 0.75rem 1.25rem;
+            font-family: 'Oswald', sans-serif;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .control-btn:hover {
+            background: linear-gradient(180deg, #555, #444);
+        }
+
+        .control-btn.primary {
+            background: linear-gradient(180deg, #5d7245, #4a5a3a);
+        }
+
+        .control-btn.primary:hover {
+            background: linear-gradient(180deg, #6d8255, #5a6a4a);
+        }
+
+        .control-btn.danger {
+            background: linear-gradient(180deg, #c94444, #8b1e1e);
+        }
+
+        .control-btn.danger:hover {
+            background: linear-gradient(180deg, #d95555, #9b2e2e);
+        }
+
+        /* Bullet Hole Animation */
+        .bullet-hole {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            pointer-events: none;
+            z-index: 9999;
+            animation: bulletImpact 0.15s ease-out forwards;
+        }
+
+        .bullet-hole::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px;
+            height: 8px;
+            background: radial-gradient(circle, #000 0%, #1a1a1a 40%, transparent 70%);
+            border-radius: 50%;
+            box-shadow:
+                0 0 3px 1px rgba(0,0,0,0.8),
+                inset 0 0 2px 1px rgba(0,0,0,0.9);
+        }
+
+        .bullet-hole::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 18px;
+            height: 18px;
+            background: radial-gradient(circle, transparent 20%, rgba(80,80,80,0.3) 40%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        @keyframes bulletImpact {
+            0% {
+                transform: scale(0);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.3);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .bullet-hole.fade-out {
+            animation: bulletFade 0.5s ease-out forwards;
+        }
+
+        @keyframes bulletFade {
+            0% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+            }
+        }
+
+        .muzzle-flash {
+            position: fixed;
+            width: 30px;
+            height: 30px;
+            pointer-events: none;
+            z-index: 9998;
+            background: radial-gradient(circle, rgba(255,200,50,0.9) 0%, rgba(255,100,0,0.6) 30%, transparent 70%);
+            border-radius: 50%;
+            animation: flashPulse 0.08s ease-out forwards;
+        }
+
+        @keyframes flashPulse {
+            0% {
+                transform: scale(0.5);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        /* Hidden class */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Toast Message -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Setup Screen -->
+    <div id="setup" class="setup-screen">
+        <img src="HAILOFFIRElogo.png" alt="Hail of Fire" class="logo">
+        <p class="subtitle">Break Point Tracker</p>
+        <button class="start-btn" id="startBattle">Start New Battle</button>
+    </div>
+
+    <!-- Play Area -->
+    <div id="playArea" class="play-area">
+        <div class="header">
+            <img src="HAILOFFIRElogo.png" alt="Hail of Fire" class="logo-small">
+            <p class="subtitle">Break Point Tracker</p>
+        </div>
+
+        <div class="players-container">
+            <!-- Allies Panel -->
+            <div class="player-panel allies" data-player="allies">
+                <h2 class="player-name">Allies</h2>
+                <div class="last-roll">
+                    <span class="last-roll-label">Last Roll</span>
+                    <span class="last-roll-value">--</span>
+                </div>
+                <div class="button-row">
+                    <button class="generate-btn">Generate<br>Break Points</button>
+                    <button class="toggle-score-btn">Show Score</button>
+                </div>
+                <div class="score-section">
+                    <p class="score-label">Total Break Points</p>
+                    <p class="score-value">0</p>
+                    <p class="draws-label">History</p>
+                    <div class="draws-history"></div>
+                </div>
+            </div>
+
+            <!-- Axis Panel -->
+            <div class="player-panel axis" data-player="axis">
+                <h2 class="player-name">Axis</h2>
+                <div class="last-roll">
+                    <span class="last-roll-label">Last Roll</span>
+                    <span class="last-roll-value">--</span>
+                </div>
+                <div class="button-row">
+                    <button class="generate-btn">Generate<br>Break Points</button>
+                    <button class="toggle-score-btn">Show Score</button>
+                </div>
+                <div class="score-section">
+                    <p class="score-label">Total Break Points</p>
+                    <p class="score-value">0</p>
+                    <p class="draws-label">History</p>
+                    <div class="draws-history"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="control-btn" id="hideAllScores">Hide All Scores</button>
+            <button class="control-btn" id="saveGame">Save Game</button>
+            <button class="control-btn danger" id="finishGame">Finish Game</button>
+            <button class="control-btn primary" id="newBattle">New Battle</button>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let gameState = {
+            allies: { score: 0, draws: [] },
+            axis: { score: 0, draws: [] }
+        };
+
+        // DOM Elements
+        const setupScreen = document.getElementById('setup');
+        const playArea = document.getElementById('playArea');
+        const toast = document.getElementById('toast');
+
+        // Convert die roll to Break Points
+        function dieToBreakPoints(roll) {
+            if (roll <= 3) return 1;
+            if (roll <= 5) return 2;
+            return 3;
+        }
+
+        // Roll a d6
+        function rollD6() {
+            return Math.floor(Math.random() * 6) + 1;
+        }
+
+        // Show toast message
+        function showToast(message) {
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        // Audio context for sound effects
+        let audioContext = null;
+        let convolver = null;
+
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                // Create outdoor atmosphere reverb
+                convolver = createOutdoorReverb(audioContext);
+            }
+            return audioContext;
+        }
+
+        // Create outdoor/battlefield atmosphere - shorter, more diffuse
+        function createOutdoorReverb(ctx) {
+            const sampleRate = ctx.sampleRate;
+            const length = sampleRate * 0.8; // Shorter than indoor (0.8 sec vs 2 sec)
+            const impulse = ctx.createBuffer(2, length, sampleRate);
+            const leftChannel = impulse.getChannelData(0);
+            const rightChannel = impulse.getChannelData(1);
+
+            for (let i = 0; i < length; i++) {
+                const t = i / length;
+                // Faster decay for outdoor (no walls to bounce off)
+                const envelope = Math.exp(-t * 8);
+                // Very minimal early reflections (open space)
+                const earlyReflection = i < sampleRate * 0.01 ? Math.random() * 0.1 : 0;
+                // Add slight delayed "distance" echo
+                const distantEcho = (i > sampleRate * 0.15 && i < sampleRate * 0.25) ? Math.random() * 0.08 * Math.exp(-(i - sampleRate * 0.15) / (sampleRate * 0.1)) : 0;
+
+                leftChannel[i] = (Math.random() * 2 - 1) * envelope * 0.5 + earlyReflection + distantEcho;
+                rightChannel[i] = (Math.random() * 2 - 1) * envelope * 0.5 + earlyReflection + distantEcho * 0.8;
+            }
+
+            const convolverNode = ctx.createConvolver();
+            convolverNode.buffer = impulse;
+            return convolverNode;
+        }
+
+        // Play machine gun burst sound - different for each side
+        // Allies: Slower, heavier thump (like .30 cal / .50 cal)
+        // Axis: Fast, ripping sound (like MG42 "buzzsaw")
+        function playGunSound(player) {
+            const ctx = initAudio();
+            const numShots = 12;
+
+            // Sound profile based on player
+            const isAllies = player === 'allies';
+            const shotDelay = isAllies ? 75 : 45; // Axis much faster (MG42 ~1200 RPM)
+            const baseFreq = isAllies ? 100 : 160; // Allies deeper thump
+            const endFreq = isAllies ? 35 : 60;
+            const highpassFreq = isAllies ? 150 : 350; // Allies more bass
+            const lowpassBase = isAllies ? 2200 : 3800; // Axis brighter/ripping
+            const clickDecay = isAllies ? 60 : 100; // Axis sharper crack
+            const noiseDecay = isAllies ? 18 : 35; // Allies longer sustain (heavier rounds)
+
+            for (let i = 0; i < numShots; i++) {
+                setTimeout(() => {
+                    // Create a more realistic gunshot with multiple layers
+
+                    // Layer 1: Sharp transient click (the "crack")
+                    const clickBuffer = ctx.createBuffer(1, ctx.sampleRate * 0.015, ctx.sampleRate);
+                    const clickData = clickBuffer.getChannelData(0);
+                    for (let j = 0; j < clickData.length; j++) {
+                        const t = j / clickData.length;
+                        clickData[j] = (Math.random() * 2 - 1) * Math.exp(-t * clickDecay);
+                    }
+                    const clickSource = ctx.createBufferSource();
+                    clickSource.buffer = clickBuffer;
+
+                    // Layer 2: Low frequency thump (the "punch")
+                    const osc = ctx.createOscillator();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(baseFreq, ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(endFreq, ctx.currentTime + 0.05);
+
+                    const oscGain = ctx.createGain();
+                    oscGain.gain.setValueAtTime(isAllies ? 1.0 : 0.6, ctx.currentTime);
+                    oscGain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + (isAllies ? 0.08 : 0.05));
+
+                    // Layer 3: Noise burst (the "body")
+                    const noiseLength = isAllies ? 0.14 : 0.06; // Allies heavier, longer boom
+                    const noiseBuffer = ctx.createBuffer(1, ctx.sampleRate * noiseLength, ctx.sampleRate);
+                    const noiseData = noiseBuffer.getChannelData(0);
+                    for (let j = 0; j < noiseData.length; j++) {
+                        const t = j / noiseData.length;
+                        noiseData[j] = (Math.random() * 2 - 1) * Math.exp(-t * noiseDecay);
+                    }
+                    const noiseSource = ctx.createBufferSource();
+                    noiseSource.buffer = noiseBuffer;
+
+                    // Filters
+                    const highpass = ctx.createBiquadFilter();
+                    highpass.type = 'highpass';
+                    highpass.frequency.value = highpassFreq;
+
+                    const lowpass = ctx.createBiquadFilter();
+                    lowpass.type = 'lowpass';
+                    lowpass.frequency.value = lowpassBase + Math.random() * 1000;
+
+                    // Master gain (dry signal)
+                    const masterGain = ctx.createGain();
+                    masterGain.gain.value = 0.7;
+
+                    // Reverb send gain (wet signal)
+                    const reverbSend = ctx.createGain();
+                    reverbSend.gain.value = 0.4; // Amount of reverb
+
+                    // Connect click
+                    clickSource.connect(masterGain);
+                    clickSource.connect(reverbSend);
+
+                    // Connect oscillator (thump)
+                    osc.connect(oscGain);
+                    oscGain.connect(masterGain);
+                    oscGain.connect(reverbSend);
+
+                    // Connect noise through filters
+                    noiseSource.connect(highpass);
+                    highpass.connect(lowpass);
+                    lowpass.connect(masterGain);
+                    lowpass.connect(reverbSend);
+
+                    // Dry path direct to output
+                    masterGain.connect(ctx.destination);
+
+                    // Wet path through reverb
+                    reverbSend.connect(convolver);
+                    convolver.connect(ctx.destination);
+
+                    // Start all
+                    const now = ctx.currentTime;
+                    clickSource.start(now);
+                    osc.start(now);
+                    osc.stop(now + 0.07);
+                    noiseSource.start(now);
+
+                }, i * shotDelay); // Different timing per side
+            }
+        }
+
+        // Bullet strafing animation - crosses the button left to right
+        function createBulletStrafe(buttonElement) {
+            const numBullets = 12; // 12 bullets
+            const rect = buttonElement.getBoundingClientRect();
+            const buttonCenterX = rect.left + rect.width / 2;
+            const buttonCenterY = rect.top + rect.height / 2;
+
+            // Start to the left of the button, end to the right
+            const totalWidth = 200 + Math.random() * 100; // Total strafe width
+            const startX = buttonCenterX - totalWidth / 2;
+            const spacingX = totalWidth / numBullets;
+
+            // Random vertical angle so it crosses through button area
+            const verticalOffset = (Math.random() * 120 - 60); // Random start offset
+            const verticalSlope = (Math.random() * 0.8 - 0.4); // Slight up or down angle
+
+            for (let i = 0; i < numBullets; i++) {
+                setTimeout(() => {
+                    // Calculate position - always left to right, with vertical spread
+                    const x = startX + i * spacingX + (Math.random() * 28 - 14);
+                    const baseY = buttonCenterY + verticalOffset + (i * spacingX * verticalSlope);
+                    const y = baseY + (Math.random() * 90 - 45); // Add randomness to vertical
+
+                    // Create muzzle flash
+                    const flash = document.createElement('div');
+                    flash.className = 'muzzle-flash';
+                    flash.style.left = (x - 15) + 'px';
+                    flash.style.top = (y - 15) + 'px';
+                    document.body.appendChild(flash);
+                    setTimeout(() => flash.remove(), 100);
+
+                    // Create bullet hole
+                    const hole = document.createElement('div');
+                    hole.className = 'bullet-hole';
+                    hole.style.left = (x - 10) + 'px';
+                    hole.style.top = (y - 10) + 'px';
+                    document.body.appendChild(hole);
+
+                    // Fade out and remove after delay
+                    setTimeout(() => {
+                        hole.classList.add('fade-out');
+                        setTimeout(() => hole.remove(), 500);
+                    }, 800);
+
+                }, i * 60); // 60ms between each bullet
+            }
+        }
+
+        // Update player display
+        function updatePlayerDisplay(player) {
+            const panel = document.querySelector(`.player-panel.${player}`);
+            const state = gameState[player];
+
+            panel.querySelector('.score-value').textContent = state.score;
+
+            const historyContainer = panel.querySelector('.draws-history');
+            historyContainer.innerHTML = state.draws.map(bp =>
+                `<span class="draw-chip bp-${bp}">${bp} BP</span>`
+            ).join('');
+        }
+
+        // Generate Break Points for a player
+        function generateBreakPoints(player) {
+            const panel = document.querySelector(`.player-panel.${player}`);
+            const btn = panel.querySelector('.generate-btn');
+            const lastRollValue = panel.querySelector('.last-roll-value');
+
+            // Trigger bullet strafe across the button with sound
+            createBulletStrafe(btn);
+            playGunSound(player);
+
+            // Add rolling animation
+            btn.classList.add('rolling');
+
+            // Roll the die
+            const roll = rollD6();
+            const bp = dieToBreakPoints(roll);
+
+            // Update state
+            gameState[player].score += bp;
+            gameState[player].draws.push(bp);
+
+            // Update display after animation
+            setTimeout(() => {
+                btn.classList.remove('rolling');
+                lastRollValue.innerHTML = `<span class="die">Rolled ${roll}</span> → <span class="bp">${bp} BP</span>`;
+                updatePlayerDisplay(player);
+
+                // Auto-show score section for this player
+                showScore(player);
+            }, 300);
+        }
+
+        // Show score for a player
+        function showScore(player) {
+            const panel = document.querySelector(`.player-panel.${player}`);
+            const scoreSection = panel.querySelector('.score-section');
+            const btn = panel.querySelector('.toggle-score-btn');
+
+            scoreSection.classList.add('visible');
+            btn.textContent = 'Hide Score';
+        }
+
+        // Toggle score visibility for a player
+        function toggleScore(player) {
+            const panel = document.querySelector(`.player-panel.${player}`);
+            const scoreSection = panel.querySelector('.score-section');
+            const btn = panel.querySelector('.toggle-score-btn');
+
+            scoreSection.classList.toggle('visible');
+            btn.textContent = scoreSection.classList.contains('visible') ? 'Hide Score' : 'Show Score';
+        }
+
+        // Show all scores
+        function showAllScores() {
+            showScore('allies');
+            showScore('axis');
+        }
+
+        // Hide all scores
+        function hideAllScores() {
+            document.querySelectorAll('.score-section').forEach(section => {
+                section.classList.remove('visible');
+            });
+            document.querySelectorAll('.toggle-score-btn').forEach(btn => {
+                btn.textContent = 'Show Score';
+            });
+        }
+
+        // Save game to localStorage
+        function saveGame() {
+            localStorage.setItem('hof-breakpoint-game', JSON.stringify(gameState));
+            showToast('Game Saved!');
+        }
+
+        // Load game from localStorage
+        function loadGame() {
+            const saved = localStorage.getItem('hof-breakpoint-game');
+            if (saved) {
+                gameState = JSON.parse(saved);
+                updatePlayerDisplay('allies');
+                updatePlayerDisplay('axis');
+                return true;
+            }
+            return false;
+        }
+
+        // Reset game state
+        function resetGame() {
+            gameState = {
+                allies: { score: 0, draws: [] },
+                axis: { score: 0, draws: [] }
+            };
+            updatePlayerDisplay('allies');
+            updatePlayerDisplay('axis');
+
+            // Reset last roll displays
+            document.querySelectorAll('.last-roll-value').forEach(el => {
+                el.innerHTML = '--';
+            });
+
+            hideAllScores();
+        }
+
+        // Start a new battle
+        function startBattle() {
+            resetGame();
+            setupScreen.classList.add('hidden');
+            playArea.classList.add('active');
+        }
+
+        // Finish game and return to setup
+        function finishGame() {
+            // Show both scores before confirming
+            showAllScores();
+
+            // Build summary message
+            const alliedScore = gameState.allies.score;
+            const axisScore = gameState.axis.score;
+            const alliedDraws = gameState.allies.draws.length;
+            const axisDraws = gameState.axis.draws.length;
+
+            let winner = '';
+            if (alliedScore > axisScore) {
+                winner = 'ALLIES WIN!';
+            } else if (axisScore > alliedScore) {
+                winner = 'AXIS WIN!';
+            } else {
+                winner = 'TIE GAME!';
+            }
+
+            const summary = `BATTLE COMPLETE!\n\n` +
+                `${winner}\n\n` +
+                `ALLIES: ${alliedScore} BP (${alliedDraws} rolls)\n` +
+                `AXIS: ${axisScore} BP (${axisDraws} rolls)\n\n` +
+                `End this battle and return to the start screen?`;
+
+            if (confirm(summary)) {
+                localStorage.removeItem('hof-breakpoint-game');
+                playArea.classList.remove('active');
+                setupScreen.classList.remove('hidden');
+                resetGame();
+            }
+        }
+
+        // Event Listeners
+        document.getElementById('startBattle').addEventListener('click', () => {
+            // Check for saved game
+            if (loadGame()) {
+                if (confirm('Resume saved game?')) {
+                    setupScreen.classList.add('hidden');
+                    playArea.classList.add('active');
+                } else {
+                    startBattle();
+                }
+            } else {
+                startBattle();
+            }
+        });
+
+        document.getElementById('newBattle').addEventListener('click', () => {
+            if (confirm('Start a new battle? Current progress will be lost.')) {
+                startBattle();
+            }
+        });
+
+        document.getElementById('hideAllScores').addEventListener('click', hideAllScores);
+        document.getElementById('saveGame').addEventListener('click', saveGame);
+        document.getElementById('finishGame').addEventListener('click', finishGame);
+
+        // Generate Break Points buttons
+        document.querySelectorAll('.generate-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const player = btn.closest('.player-panel').dataset.player;
+                generateBreakPoints(player);
+            });
+        });
+
+        // Toggle score buttons
+        document.querySelectorAll('.toggle-score-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const player = btn.closest('.player-panel').dataset.player;
+                toggleScore(player);
+            });
+        });
+    </script>
+</body>
+</html>
