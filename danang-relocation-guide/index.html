@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Da Nang Relocation Guide — Your Move, Step by Step</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root{
+    --bg:#f6f3ee;
+    --panel:#ffffff;
+    --ink:#1f2421;
+    --ink-soft:#5b635d;
+    --line:#e3ddd2;
+    --accent:#0d7d6b;       /* jade */
+    --accent-dark:#0a5f51;
+    --accent-soft:#e4f1ee;
+    --gold:#c08a2d;
+    --danger:#b4452f;
+    --shadow:0 1px 3px rgba(31,36,33,.08),0 8px 24px rgba(31,36,33,.06);
+    --radius:14px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Inter',system-ui,sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.brand{font-family:'Fraunces',Georgia,serif}
+
+  /* ---------- Layout ---------- */
+  .wrap{display:grid;grid-template-columns:280px 1fr;min-height:100vh}
+  .sidebar{
+    position:sticky;top:0;align-self:start;height:100vh;overflow-y:auto;
+    background:var(--panel);border-right:1px solid var(--line);padding:1.5rem 1.1rem;
+  }
+  .main{padding:2.5rem clamp(1rem,4vw,3.5rem);max-width:920px}
+
+  /* ---------- Sidebar ---------- */
+  .brand{font-size:1.45rem;font-weight:700;line-height:1.15;letter-spacing:-.01em}
+  .brand small{display:block;font-family:'Inter';font-size:.72rem;font-weight:600;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-top:.35rem}
+  .countdown{margin:1.2rem 0;padding:.9rem 1rem;background:var(--accent-soft);
+    border-radius:10px;border:1px solid #cfe6e1}
+  .countdown .big{font-family:'Fraunces';font-size:1.9rem;font-weight:700;color:var(--accent-dark);line-height:1}
+  .countdown .lbl{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+  .countdown input{margin-top:.5rem;width:100%;border:1px solid var(--line);border-radius:7px;
+    padding:.35rem .5rem;font-family:inherit;font-size:.85rem;background:#fff;color:var(--ink)}
+  nav{margin-top:1rem;display:flex;flex-direction:column;gap:1px}
+  nav a{display:flex;align-items:center;gap:.6rem;text-decoration:none;color:var(--ink-soft);
+    font-size:.9rem;font-weight:500;padding:.5rem .6rem;border-radius:8px;transition:.15s}
+  nav a:hover{background:var(--bg);color:var(--ink)}
+  nav a.active{background:var(--accent);color:#fff}
+  nav a .ck{margin-left:auto;font-size:.72rem;color:var(--accent);font-weight:700}
+  nav a.active .ck{color:#fff}
+  .sb-tools{margin-top:1.4rem;border-top:1px solid var(--line);padding-top:1rem;display:flex;flex-direction:column;gap:.5rem}
+
+  /* ---------- Progress ---------- */
+  .prog{margin:.9rem 0 0}
+  .prog .bar{height:8px;background:var(--bg);border-radius:99px;overflow:hidden;border:1px solid var(--line)}
+  .prog .fill{height:100%;width:0;background:linear-gradient(90deg,var(--accent),#16a98f);transition:width .4s ease}
+  .prog .pct{font-size:.74rem;color:var(--ink-soft);margin-top:.35rem}
+
+  /* ---------- Buttons ---------- */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:.45rem;cursor:pointer;
+    font-family:inherit;font-size:.82rem;font-weight:600;border-radius:9px;padding:.55rem .9rem;
+    border:1px solid var(--line);background:#fff;color:var(--ink);transition:.15s;text-decoration:none}
+  .btn:hover{border-color:var(--accent);color:var(--accent)}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  .btn.primary:hover{background:var(--accent-dark);color:#fff}
+  .btn.block{width:100%}
+
+  /* ---------- Hero ---------- */
+  .hero{margin-bottom:2.5rem}
+  .hero h1{font-size:clamp(2rem,5vw,3rem);font-weight:700;letter-spacing:-.02em;line-height:1.05}
+  .hero p.lead{font-size:1.05rem;color:var(--ink-soft);margin-top:.8rem;max-width:60ch}
+  .badge{display:inline-block;font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--accent);background:var(--accent-soft);padding:.3rem .7rem;border-radius:99px;margin-bottom:1rem}
+
+  /* ---------- Sections ---------- */
+  section.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:1.6rem 1.8rem;margin-bottom:1.6rem;scroll-margin-top:1.5rem}
+  section.card>h2{font-size:1.5rem;font-weight:600;letter-spacing:-.01em;display:flex;align-items:center;gap:.6rem}
+  .sec-num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;flex:0 0 34px;
+    background:var(--accent-soft);color:var(--accent-dark);border-radius:9px;font-size:.95rem;font-weight:700;font-family:'Inter'}
+  .sec-intro{color:var(--ink-soft);margin:.6rem 0 1.2rem;font-size:.96rem}
+  h3.sub{font-size:1rem;font-weight:700;margin:1.4rem 0 .6rem;color:var(--ink)}
+  .tip{background:#fbf7ec;border:1px solid #efe3c4;border-left:3px solid var(--gold);
+    border-radius:8px;padding:.7rem .9rem;font-size:.88rem;color:#6b5a32;margin:.8rem 0}
+  .tip b{color:#5a4a26}
+  .warn{background:#fbeeea;border:1px solid #f0d2c9;border-left:3px solid var(--danger);
+    border-radius:8px;padding:.7rem .9rem;font-size:.88rem;color:#7a3325;margin:.8rem 0}
+
+  /* ---------- Checklists ---------- */
+  ul.checklist{list-style:none;display:flex;flex-direction:column;gap:.15rem;margin:.4rem 0}
+  ul.checklist li{display:flex;align-items:flex-start;gap:.7rem;padding:.5rem .6rem;border-radius:8px;transition:.12s}
+  ul.checklist li:hover{background:var(--bg)}
+  ul.checklist input[type=checkbox]{appearance:none;-webkit-appearance:none;flex:0 0 20px;width:20px;height:20px;
+    border:2px solid var(--line);border-radius:6px;cursor:pointer;margin-top:.15rem;position:relative;transition:.12s}
+  ul.checklist input[type=checkbox]:hover{border-color:var(--accent)}
+  ul.checklist input[type=checkbox]:checked{background:var(--accent);border-color:var(--accent)}
+  ul.checklist input[type=checkbox]:checked::after{content:"";position:absolute;left:5px;top:1px;width:5px;height:10px;
+    border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+  ul.checklist label{cursor:pointer;font-size:.93rem;flex:1}
+  ul.checklist input:checked + label{color:var(--ink-soft);text-decoration:line-through}
+
+  /* ---------- Fields & notes ---------- */
+  .field{margin:.7rem 0}
+  .field label{display:block;font-size:.78rem;font-weight:600;color:var(--ink-soft);
+    text-transform:uppercase;letter-spacing:.04em;margin-bottom:.3rem}
+  .field input,.field textarea{width:100%;font-family:inherit;font-size:.92rem;color:var(--ink);
+    background:#fff;border:1px solid var(--line);border-radius:9px;padding:.55rem .7rem;transition:.12s}
+  .field input:focus,.field textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  .field textarea{min-height:90px;resize:vertical}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+  @media(max-width:600px){.grid2{grid-template-columns:1fr}}
+
+  /* ---------- Budget table ---------- */
+  table.budget{width:100%;border-collapse:collapse;margin:.6rem 0;font-size:.92rem}
+  table.budget th{text-align:left;font-size:.74rem;text-transform:uppercase;letter-spacing:.05em;
+    color:var(--ink-soft);border-bottom:2px solid var(--line);padding:.5rem .4rem}
+  table.budget td{padding:.35rem .4rem;border-bottom:1px solid var(--line)}
+  table.budget td:last-child{width:130px}
+  table.budget input{width:100%;text-align:right;font-family:inherit;font-size:.9rem;border:1px solid var(--line);
+    border-radius:7px;padding:.35rem .5rem;background:#fff;color:var(--ink)}
+  table.budget input:focus{outline:none;border-color:var(--accent)}
+  .budget-total{display:flex;justify-content:space-between;align-items:baseline;
+    background:var(--accent-soft);border-radius:10px;padding:.8rem 1rem;margin-top:.7rem}
+  .budget-total .amt{font-family:'Fraunces';font-size:1.6rem;font-weight:700;color:var(--accent-dark)}
+  .budget-total .vnd{font-size:.85rem;color:var(--ink-soft)}
+  .fx{display:flex;align-items:center;gap:.5rem;font-size:.84rem;color:var(--ink-soft);margin:.5rem 0}
+  .fx input{width:120px;text-align:right;border:1px solid var(--line);border-radius:7px;padding:.3rem .5rem;font-family:inherit}
+
+  .saved-flash{position:fixed;bottom:20px;right:20px;background:var(--ink);color:#fff;padding:.6rem 1rem;
+    border-radius:9px;font-size:.85rem;opacity:0;transform:translateY(10px);transition:.25s;z-index:99;pointer-events:none}
+  .saved-flash.show{opacity:1;transform:translateY(0)}
+
+  footer{color:var(--ink-soft);font-size:.82rem;border-top:1px solid var(--line);margin-top:2rem;padding-top:1.2rem}
+
+  /* ---------- Mobile ---------- */
+  .menu-btn{display:none}
+  @media(max-width:880px){
+    .wrap{grid-template-columns:1fr}
+    .sidebar{position:fixed;z-index:50;width:280px;left:-300px;transition:left .25s;box-shadow:var(--shadow)}
+    .sidebar.open{left:0}
+    .menu-btn{display:inline-flex;position:fixed;top:14px;left:14px;z-index:60}
+    .main{padding-top:4rem}
+  }
+
+  /* ---------- Print / PDF ---------- */
+  @media print{
+    .sidebar,.menu-btn,.sb-tools,.saved-flash,.no-print{display:none!important}
+    .wrap{display:block}
+    .main{max-width:100%;padding:0}
+    section.card{box-shadow:none;border:1px solid #ccc;break-inside:avoid;page-break-inside:avoid}
+    body{background:#fff}
+    a[href]:after{content:""}
+  }
+</style>
+</head>
+<body>
+
+<button class="btn menu-btn" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰ Menu</button>
+
+<div class="wrap">
+  <!-- ===================== SIDEBAR ===================== -->
+  <aside class="sidebar">
+    <div class="brand">Da Nang<br>Relocation Guide<small>Move-in 8-12 weeks</small></div>
+
+    <div class="countdown">
+      <div class="lbl">Days until move</div>
+      <div class="big" id="cd-days">—</div>
+      <input type="date" id="moveDate" data-field="moveDate">
+    </div>
+
+    <div class="prog">
+      <div class="bar"><div class="fill" id="progFill"></div></div>
+      <div class="pct" id="progPct">0% complete · 0 of 0 tasks</div>
+    </div>
+
+    <nav id="nav"></nav>
+
+    <div class="sb-tools">
+      <button class="btn block" onclick="exportData()">⬇ Save backup (JSON)</button>
+      <button class="btn block" onclick="document.getElementById('importFile').click()">⬆ Restore backup</button>
+      <input type="file" id="importFile" accept="application/json" style="display:none" onchange="importData(event)">
+      <button class="btn block primary" onclick="window.print()">🖨 Export to PDF</button>
+    </div>
+  </aside>
+
+  <!-- ===================== MAIN ===================== -->
+  <main class="main">
+    <div class="hero">
+      <span class="badge">Your living playbook</span>
+      <h1>Moving to Da Nang, the un-stressful way</h1>
+      <p class="lead">Everything you type here saves automatically to this device. Work through it as you plan,
+        check things off as you go, and your real-world notes become the guide. When you're done, this is also
+        a finished product you can sell to the next person making the leap.</p>
+    </div>
+
+    <!-- Content injected here -->
+    <div id="sections"></div>
+
+    <footer>
+      <p><b>How to use this:</b> Fill in every field with what <i>you actually verified</i> — the prices you paid,
+      the agent who found your house, the visa run that worked. Generic advice is everywhere; your specifics are the
+      product. <span class="no-print">Use “Save backup” often so you never lose your notes.</span></p>
+      <p style="margin-top:.6rem">⚠ Visa rules, fees, and requirements change constantly and vary by nationality.
+      Treat every section as “confirm before you rely on it.” This guide organizes your research — it is not legal,
+      tax, or immigration advice.</p>
+    </footer>
+  </main>
+</div>
+
+<div class="saved-flash" id="flash">Saved ✓</div>
+
+<script>
+/* ============================================================
+   DATA MODEL — sections, prompts, checklists.
+   Content is intentionally structured as prompts/categories,
+   not hard facts, so the owner fills it with verified info.
+   ============================================================ */
+const SECTIONS = [
+  {
+    id:"decision", num:1, icon:"🧭", title:"Decision & Big Picture",
+    intro:"Lock the non-negotiables before the logistics swallow you. Get aligned with Tammy on the why, the budget ceiling, and the exit ramp.",
+    fields:[
+      {id:"why", label:"Why Da Nang (our 1-sentence reason)", type:"text"},
+      {id:"trial", label:"Is this a trial or permanent? How long before we re-decide?", type:"text"},
+      {id:"budgetCeiling", label:"Monthly budget ceiling we will not exceed (USD)", type:"text"},
+      {id:"runway", label:"Months of savings runway we have", type:"text"},
+    ],
+    note:"Open questions, fears, and what would make us call it off",
+    checklist:[
+      "Agree on a hard monthly budget and a runway floor",
+      "Decide trial period vs. permanent (set a re-decision date)",
+      "List what we keep, sell, store, and ship",
+      "Agree on an exit plan / cost to come back if needed",
+      "Tell family & key people the plan and timeline",
+    ],
+  },
+  {
+    id:"visa", num:2, icon:"🛂", title:"Visas & Legal Entry",
+    intro:"The part with the most misinformation online. Verify everything against the official source for YOUR passport, then record exactly what worked.",
+    fields:[
+      {id:"visaType", label:"Visa type we're entering on", type:"text"},
+      {id:"visaLen", label:"Length / number of entries", type:"text"},
+      {id:"visaCost", label:"What it actually cost (per person)", type:"text"},
+      {id:"visaService", label:"Agent / service used (name + contact)", type:"text"},
+      {id:"renewPlan", label:"Renewal / extension / visa-run plan", type:"text"},
+    ],
+    note:"Step-by-step of how we actually got the visa (the real process, gotchas, processing time)",
+    checklist:[
+      "Confirm passport valid 6+ months beyond intended stay",
+      "Research every visa option for our nationality (official gov source)",
+      "Choose visa type and confirm it allows our length of stay",
+      "Apply / book service and save all confirmation docs",
+      "Print physical copies of approval letters",
+      "Map the renewal/extension path BEFORE the first one expires",
+      "Understand overstay penalties",
+    ],
+    tip:"Record processing times and the exact service that worked — this is one of the most valuable, hardest-to-find pieces of info for buyers.",
+  },
+  {
+    id:"money", num:3, icon:"💵", title:"Money, Banking & Getting Paid",
+    intro:"How to move money, hold money, and spend money across two countries without bleeding fees.",
+    fields:[
+      {id:"transfer", label:"Best transfer method we found (rate + fee)", type:"text"},
+      {id:"usBank", label:"US bank/card we keep (no foreign fees?)", type:"text"},
+      {id:"localBank", label:"Local account — can we open one? Requirements", type:"text"},
+      {id:"cash", label:"How much USD cash to bring on arrival", type:"text"},
+    ],
+    note:"Banking setup notes, ATM fees, cards that work, cards that don't",
+    checklist:[
+      "Get a no-foreign-transaction-fee card before leaving",
+      "Set up an international transfer service & verify the rate",
+      "Tell US banks/cards about the move (avoid fraud locks)",
+      "Confirm online access to all US accounts from abroad",
+      "Bring backup cash + a backup card stored separately",
+      "Find out which local ATMs charge the least",
+      "Set a US mailing/forwarding address for financial mail",
+    ],
+  },
+  {
+    id:"housing", num:4, icon:"🏠", title:"Housing in Da Nang",
+    intro:"Your biggest cost and the thing that makes or breaks the experience. Plan a short-term landing pad first, then hunt for the real place in person.",
+    fields:[
+      {id:"landing", label:"Landing-pad booking (where we stay weeks 1-4)", type:"text"},
+      {id:"neighborhoods", label:"Neighborhoods we're targeting & why", type:"text"},
+      {id:"rentTarget", label:"Target monthly rent (and what it includes)", type:"text"},
+      {id:"agent", label:"Rental agent / Facebook groups that worked", type:"text"},
+      {id:"deposit", label:"Deposit & lease terms (months upfront?)", type:"text"},
+    ],
+    note:"House-hunting log: places viewed, prices, pros/cons, landlord notes",
+    checklist:[
+      "Book 2-4 weeks of short-term housing for arrival",
+      "Shortlist 2-3 neighborhoods (beach vs. city vs. quiet)",
+      "Join local rental Facebook groups / find an agent",
+      "View places in person before committing",
+      "Confirm what rent includes (utilities, cleaning, wifi)",
+      "Check water pressure, AC, mold, noise, internet speed on site",
+      "Understand deposit + how to get it back",
+      "Confirm landlord registers you with local police (required)",
+    ],
+    tip:"Beach-adjacent (My An / An Thuong) vs. riverside vs. quieter outskirts is the classic Da Nang trade-off. Log real rents you're quoted — buyers crave current numbers.",
+  },
+  {
+    id:"cost", num:5, icon:"📊", title:"Cost of Living — Live Budget",
+    intro:"Edit the amounts to match your real spend. Totals update instantly. This becomes the single most-screenshotted page of the finished guide.",
+    budget:true,
+    note:"Cost reality-check notes (where it's cheaper/pricier than expected)",
+  },
+  {
+    id:"health", num:6, icon:"🏥", title:"Healthcare & Insurance",
+    intro:"Sort coverage before you need it. Know where you'd go at 2am.",
+    fields:[
+      {id:"insurer", label:"Expat health insurance (provider + monthly cost)", type:"text"},
+      {id:"hospital", label:"Go-to international hospital/clinic in Da Nang", type:"text"},
+      {id:"dental", label:"Dentist / pharmacy notes", type:"text"},
+      {id:"meds", label:"Prescriptions: how to refill locally", type:"text"},
+    ],
+    note:"Health setup, emergency numbers, clinics we'd actually use",
+    checklist:[
+      "Buy international/expat health insurance (or confirm coverage)",
+      "Stock essential prescriptions + carry doctor's note",
+      "Save nearest international hospital address & number",
+      "Get any pre-move checkups & dental done at home",
+      "Confirm vaccinations recommended for Vietnam",
+      "Pack a basic medical kit for the first weeks",
+    ],
+  },
+  {
+    id:"stuff", num:7, icon:"📦", title:"Stuff: Shipping, Selling & Packing",
+    intro:"The cheapest move is the lightest one. Decide ruthlessly what's worth the airfreight.",
+    fields:[
+      {id:"shipper", label:"Shipping method/company (if any) + quote", type:"text"},
+      {id:"luggage", label:"Airline baggage allowance & extra-bag cost", type:"text"},
+      {id:"storage", label:"US storage unit (cost/mo) — yes/no", type:"text"},
+    ],
+    note:"Sell / store / ship / trash decisions and packing list",
+    checklist:[
+      "Inventory everything → sell / store / ship / donate",
+      "Sell big items early (cars, furniture, gear)",
+      "Get quotes if shipping anything internationally",
+      "Confirm airline baggage rules & buy extra bags if cheaper",
+      "Pack a 'first 72 hours' bag (docs, meds, chargers, cash)",
+      "Digitize/scan all important documents to the cloud",
+      "Buy adapters/voltage-safe gear for Vietnam (220V)",
+    ],
+    tip:"Vietnam runs 220V/50Hz. Confirm laptops/chargers are dual-voltage; leave anything 110V-only behind.",
+  },
+  {
+    id:"connect", num:8, icon:"📶", title:"Connectivity: Phone & Internet",
+    intro:"Your income and your sanity both run on bandwidth. Get connected day one.",
+    fields:[
+      {id:"esim", label:"Arrival eSIM/SIM plan (provider + cost)", type:"text"},
+      {id:"homeNet", label:"Home internet provider & speed at our place", type:"text"},
+      {id:"vpn", label:"VPN we use (for US banking/streaming)", type:"text"},
+    ],
+    note:"Connectivity notes, coworking spots with good wifi, backup hotspot",
+    checklist:[
+      "Buy an arrival eSIM so you're online at the airport",
+      "Get a local SIM with a generous data plan once settled",
+      "Set up a reliable VPN before leaving the US",
+      "Test home internet speed before signing a lease",
+      "Scout 1-2 coworking spaces / cafés as backup offices",
+      "Keep US phone number alive (cheap eSIM or VoIP)",
+    ],
+  },
+  {
+    id:"income", num:9, icon:"💼", title:"Income & Remote Work Setup",
+    intro:"Your money lever. Keep earnings paid to US accounts, work the time zone, and protect the runway.",
+    fields:[
+      {id:"streams", label:"Income streams we're running", type:"text"},
+      {id:"hours", label:"Our workable hours vs. US clients (UTC+7)", type:"text"},
+      {id:"tax", label:"US tax plan abroad (FEIE? accountant?)", type:"text"},
+    ],
+    note:"Income experiments, what's working, monthly target vs. actual",
+    checklist:[
+      "Confirm all income is payable to US bank accounts",
+      "Map the UTC+7 ↔ US time-zone overlap for any client work",
+      "Talk to a US expat tax pro (FEIE, filing obligations)",
+      "Set a monthly income target = budget floor",
+      "Keep a reliable backup workspace (coworking)",
+      "Separate business & personal finances cleanly",
+    ],
+    tip:"Da Nang's low cost of living means a modest remote income goes a long way — track target vs. actual here every month.",
+  },
+  {
+    id:"daily", num:10, icon:"🛵", title:"Daily Life & Getting Around",
+    intro:"The stuff that turns 'surviving' into 'living here.' Transport, food, errands, rhythm.",
+    fields:[
+      {id:"transport", label:"How we get around (Grab? motorbike? rental?)", type:"text"},
+      {id:"license", label:"Driving: license/IDP situation", type:"text"},
+      {id:"groceries", label:"Where we shop (markets, Western groceries)", type:"text"},
+    ],
+    note:"Daily-life discoveries: favorite spots, routines, things we wish we'd known",
+    checklist:[
+      "Install Grab (rides + food) and set up payment",
+      "Decide motorbike: rent/buy + the license/insurance reality",
+      "Find go-to markets, groceries, and laundry",
+      "Locate nearest gym / pool / exercise option",
+      "Learn 10 survival Vietnamese phrases",
+      "Note trash/recycling day & how utilities get paid",
+    ],
+  },
+  {
+    id:"community", num:11, icon:"🤝", title:"Community & Soft Landing",
+    intro:"The expats who stay are the ones who build a life, not just a base. Front-load the friendships.",
+    fields:[
+      {id:"groups", label:"Expat groups / communities we joined", type:"text"},
+      {id:"language", label:"Vietnamese learning plan (app/tutor)", type:"text"},
+    ],
+    note:"People met, communities, events, loneliness-busters that worked",
+    checklist:[
+      "Join Da Nang expat & hobby Facebook/Zalo groups",
+      "Go to at least one meetup in the first 2 weeks",
+      "Start a basic Vietnamese learning habit",
+      "Find one recurring social anchor (class, gym, club)",
+      "Build a relationship with neighbors / landlord",
+    ],
+  },
+  {
+    id:"timeline", num:12, icon:"✅", title:"Master Timeline & Final Checklist",
+    intro:"The countdown. Work backwards from your move date — this is the page you'll live in for the next 8-12 weeks.",
+    note:"Week-by-week plan and anything not captured above",
+    checklist:[
+      "8-12 wks out: visas in motion, budget locked, runway confirmed",
+      "8 wks out: start selling big items, book landing-pad housing",
+      "6 wks out: insurance bought, flights booked, banking sorted",
+      "4 wks out: shipping/storage arranged, downsizing underway",
+      "2 wks out: documents scanned, eSIM bought, first-72h bag packed",
+      "1 wk out: confirm everything, say goodbyes, final cash withdrawal",
+      "Arrival week: SIM, short-term place, register with police, start house hunt",
+      "Month 1: sign lease, open local accounts if possible, build routine",
+    ],
+  },
+];
+
+/* Default budget line items (amounts blank → owner fills with real numbers) */
+const BUDGET_MONTHLY = [
+  ["Rent (long-term house/apt)"],["Utilities (electric/water/gas)"],["Home internet"],
+  ["Phone / mobile data"],["Groceries"],["Eating out / coffee"],["Transport (Grab/motorbike/fuel)"],
+  ["Health insurance"],["Gym / fitness"],["Household help / cleaning"],["Entertainment / travel"],
+  ["Visa amortized (monthly set-aside)"],["Misc / buffer"],
+];
+
+/* ============================================================
+   STATE + PERSISTENCE
+   ============================================================ */
+const KEY="danang-guide-v1";
+let state = load();
+function load(){ try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return{}} }
+let saveTimer;
+function save(){
+  localStorage.setItem(KEY, JSON.stringify(state));
+  clearTimeout(saveTimer);
+  const f=document.getElementById('flash'); f.classList.add('show');
+  saveTimer=setTimeout(()=>f.classList.remove('show'),900);
+}
+function set(k,v){ state[k]=v; save(); }
+function get(k,d=""){ return state[k]!==undefined?state[k]:d; }
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+const secWrap=document.getElementById('sections');
+const navEl=document.getElementById('nav');
+
+SECTIONS.forEach(s=>{
+  // nav
+  const a=document.createElement('a');
+  a.href="#"+s.id; a.id="nav-"+s.id;
+  a.innerHTML=`<span>${s.icon}</span><span>${s.title}</span><span class="ck" id="ck-${s.id}"></span>`;
+  navEl.appendChild(a);
+
+  // section card
+  const sec=document.createElement('section');
+  sec.className="card"; sec.id=s.id;
+  let html=`<h2><span class="sec-num">${s.num}</span>${s.title}</h2>
+            <p class="sec-intro">${s.intro}</p>`;
+
+  if(s.fields){
+    html+=`<div class="grid2">`;
+    s.fields.forEach(f=>{
+      html+=`<div class="field"><label>${f.label}</label>
+        <input type="text" data-field="${s.id}.${f.id}" placeholder="Fill in…"></div>`;
+    });
+    html+=`</div>`;
+  }
+
+  if(s.budget){
+    html+=`<div class="fx">Exchange rate: 1 USD = <input type="number" data-field="fxRate" placeholder="25400"> VND
+            <span style="font-size:.78rem">(update to today's rate)</span></div>`;
+    html+=`<table class="budget"><thead><tr><th>Monthly expense</th><th style="text-align:right">USD / month</th></tr></thead><tbody>`;
+    BUDGET_MONTHLY.forEach((row,i)=>{
+      html+=`<tr><td>${row[0]}</td><td><input type="number" min="0" data-budget="m${i}" placeholder="0"></td></tr>`;
+    });
+    html+=`</tbody></table>
+      <div class="budget-total">
+        <div><div style="font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft)">Total monthly cost of living</div>
+        <div class="vnd" id="budgetVnd">≈ — VND/mo</div></div>
+        <div class="amt" id="budgetUsd">$0<span style="font-size:.9rem;font-weight:500">/mo</span></div>
+      </div>
+      <div class="tip">Multiply your monthly total × the months of runway you need. If income ≥ this number, you're sustainable.</div>`;
+  }
+
+  if(s.tip) html+=`<div class="tip">💡 <b>Tip:</b> ${s.tip}</div>`;
+  if(s.warn) html+=`<div class="warn">⚠ ${s.warn}</div>`;
+
+  if(s.checklist){
+    html+=`<h3 class="sub">Checklist</h3><ul class="checklist">`;
+    s.checklist.forEach((item,i)=>{
+      const cid=`${s.id}.c${i}`;
+      html+=`<li><input type="checkbox" id="${cid}" data-check="${cid}"><label for="${cid}">${item}</label></li>`;
+    });
+    html+=`</ul>`;
+  }
+
+  if(s.note){
+    html+=`<div class="field" style="margin-top:1.2rem"><label>${s.note}</label>
+      <textarea data-field="${s.id}.note" placeholder="Your notes, prices, names, links — the real stuff that makes this guide worth money."></textarea></div>`;
+  }
+
+  sec.innerHTML=html;
+  secWrap.appendChild(sec);
+});
+
+/* ============================================================
+   HYDRATE inputs from state + wire autosave
+   ============================================================ */
+function hydrate(){
+  document.querySelectorAll('[data-field]').forEach(el=>{
+    const k="f:"+el.dataset.field;
+    if(get(k)!=="") el.value=get(k);
+    el.addEventListener('input',()=>{ set(k,el.value); if(el.dataset.field==='moveDate') renderCountdown(); if(el.dataset.field==='fxRate') calcBudget(); });
+  });
+  document.querySelectorAll('[data-check]').forEach(el=>{
+    const k="c:"+el.dataset.check;
+    el.checked=!!get(k,false);
+    el.addEventListener('change',()=>{ set(k,el.checked); updateProgress(); });
+  });
+  document.querySelectorAll('[data-budget]').forEach(el=>{
+    const k="b:"+el.dataset.budget;
+    if(get(k)!=="") el.value=get(k);
+    el.addEventListener('input',()=>{ set(k,el.value); calcBudget(); });
+  });
+}
+
+/* ============================================================
+   BUDGET CALC
+   ============================================================ */
+function calcBudget(){
+  let total=0;
+  document.querySelectorAll('[data-budget]').forEach(el=>{ total+=parseFloat(el.value)||0; });
+  const usd=document.getElementById('budgetUsd');
+  const vnd=document.getElementById('budgetVnd');
+  if(usd) usd.innerHTML=`$${total.toLocaleString()}<span style="font-size:.9rem;font-weight:500">/mo</span>`;
+  const fx=parseFloat(get("f:fxRate"))||0;
+  if(vnd) vnd.textContent= fx? `≈ ${(total*fx).toLocaleString()} VND/mo` : "≈ — VND/mo (set exchange rate)";
+}
+
+/* ============================================================
+   COUNTDOWN
+   ============================================================ */
+function renderCountdown(){
+  const d=get("f:moveDate");
+  const el=document.getElementById('cd-days');
+  if(!d){ el.textContent="—"; return; }
+  const diff=Math.ceil((new Date(d)-new Date())/(1000*60*60*24));
+  el.textContent = diff>0?diff : (diff===0?"Today!":"Moved 🎉");
+}
+
+/* ============================================================
+   PROGRESS
+   ============================================================ */
+function updateProgress(){
+  const all=document.querySelectorAll('[data-check]');
+  let done=0; const perSec={};
+  all.forEach(el=>{
+    const sid=el.dataset.check.split('.')[0];
+    perSec[sid]=perSec[sid]||{d:0,t:0}; perSec[sid].t++;
+    if(el.checked){done++; perSec[sid].d++;}
+  });
+  const pct=all.length?Math.round(done/all.length*100):0;
+  document.getElementById('progFill').style.width=pct+"%";
+  document.getElementById('progPct').textContent=`${pct}% complete · ${done} of ${all.length} tasks`;
+  SECTIONS.forEach(s=>{
+    const c=document.getElementById('ck-'+s.id); if(!c) return;
+    const p=perSec[s.id];
+    c.textContent = p && p.d===p.t && p.t>0 ? "✓" : (p && p.d>0 ? `${p.d}/${p.t}` : "");
+  });
+}
+
+/* ============================================================
+   SCROLLSPY
+   ============================================================ */
+const obs=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      document.querySelectorAll('nav a').forEach(a=>a.classList.remove('active'));
+      const link=document.getElementById('nav-'+e.target.id);
+      if(link) link.classList.add('active');
+    }
+  });
+},{rootMargin:"-20% 0px -70% 0px"});
+SECTIONS.forEach(s=>{const el=document.getElementById(s.id); if(el) obs.observe(el);});
+
+document.querySelectorAll('nav a').forEach(a=>a.addEventListener('click',()=>{
+  if(window.innerWidth<=880) document.querySelector('.sidebar').classList.remove('open');
+}));
+
+/* ============================================================
+   EXPORT / IMPORT
+   ============================================================ */
+function exportData(){
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download="danang-guide-backup-"+new Date().toISOString().slice(0,10)+".json";
+  a.click();
+}
+function importData(e){
+  const file=e.target.files[0]; if(!file) return;
+  const r=new FileReader();
+  r.onload=()=>{ try{ state=JSON.parse(r.result); save(); location.reload(); }
+    catch(err){ alert("Couldn't read that file."); } };
+  r.readAsText(file);
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+hydrate();
+renderCountdown();
+calcBudget();
+updateProgress();
+</script>
+</body>
+</html>
