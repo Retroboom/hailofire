@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Money Paths — Income Tracker</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap');
+  :root{
+    --bg:#f6f3ee;--panel:#fff;--ink:#1f2421;--ink-soft:#5b635d;--line:#e3ddd2;
+    --accent:#0d7d6b;--accent-dark:#0a5f51;--accent-soft:#e4f1ee;--gold:#c08a2d;--danger:#b4452f;
+    --shadow:0 1px 3px rgba(31,36,33,.08),0 8px 24px rgba(31,36,33,.06);--radius:14px;
+    /* status */
+    --s-idea:#9aa0a6;--s-explore:#3a78c2;--s-build:#c08a2d;--s-live:#0d7d6b;--s-parked:#b4452f;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased}
+  h1,h2,h3,.ff{font-family:'Fraunces',Georgia,serif}
+  .main{max-width:1100px;margin:0 auto;padding:2.2rem clamp(1rem,4vw,2.5rem)}
+
+  /* hero */
+  .badge{display:inline-block;font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--accent);background:var(--accent-soft);padding:.3rem .7rem;border-radius:99px;margin-bottom:.8rem}
+  h1{font-size:clamp(1.9rem,4.5vw,2.7rem);font-weight:700;letter-spacing:-.02em;line-height:1.05}
+  .lead{color:var(--ink-soft);margin-top:.6rem;max-width:65ch}
+
+  /* summary bar */
+  .summary{display:grid;grid-template-columns:1.3fr 1fr;gap:1rem;margin:1.6rem 0 1.2rem}
+  @media(max-width:760px){.summary{grid-template-columns:1fr}}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:1.2rem 1.3rem}
+  .panel h3{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);font-family:'Inter';margin-bottom:.7rem}
+  .money-row{display:flex;align-items:baseline;gap:.5rem;flex-wrap:wrap}
+  .money-row .now{font-family:'Fraunces';font-size:2rem;font-weight:700;color:var(--accent-dark);line-height:1}
+  .money-row .of{color:var(--ink-soft);font-size:.95rem}
+  .money-row .tgt{display:flex;align-items:center;gap:.4rem;margin-left:auto;font-size:.85rem;color:var(--ink-soft)}
+  .money-row .tgt input{width:90px;text-align:right;border:1px solid var(--line);border-radius:7px;padding:.3rem .45rem;font-family:inherit}
+  .bar{height:9px;background:var(--bg);border-radius:99px;overflow:hidden;border:1px solid var(--line);margin-top:.8rem}
+  .fill{height:100%;width:0;background:linear-gradient(90deg,var(--accent),#16a98f);transition:width .4s}
+  .hint{font-size:.78rem;color:var(--ink-soft);margin-top:.5rem}
+
+  .counts{display:flex;flex-wrap:wrap;gap:.5rem}
+  .count{display:flex;align-items:center;gap:.4rem;font-size:.82rem;background:var(--bg);border:1px solid var(--line);border-radius:99px;padding:.3rem .7rem}
+  .dot{width:9px;height:9px;border-radius:50%}
+
+  /* toolbar */
+  .toolbar{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:1.2rem 0}
+  .filters{display:flex;flex-wrap:wrap;gap:.4rem}
+  .chip{cursor:pointer;font-size:.8rem;font-weight:600;border:1px solid var(--line);background:#fff;color:var(--ink-soft);
+    border-radius:99px;padding:.4rem .8rem;transition:.12s}
+  .chip:hover{border-color:var(--accent);color:var(--accent)}
+  .chip.active{background:var(--accent);border-color:var(--accent);color:#fff}
+  .tools{margin-left:auto;display:flex;gap:.5rem}
+  .btn{display:inline-flex;align-items:center;gap:.4rem;cursor:pointer;font-family:inherit;font-size:.8rem;font-weight:600;
+    border-radius:9px;padding:.5rem .8rem;border:1px solid var(--line);background:#fff;color:var(--ink);transition:.12s}
+  .btn:hover{border-color:var(--accent);color:var(--accent)}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  .btn.primary:hover{background:var(--accent-dark)}
+
+  /* category */
+  .cat-title{font-size:1.15rem;font-weight:600;margin:1.6rem 0 .2rem;display:flex;align-items:center;gap:.5rem}
+  .cat-sub{font-size:.85rem;color:var(--ink-soft);margin-bottom:.8rem}
+
+  /* cards */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:1rem}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);
+    overflow:hidden;display:flex;flex-direction:column;border-left:4px solid var(--line);transition:.15s}
+  .card.s-idea{border-left-color:var(--s-idea)} .card.s-explore{border-left-color:var(--s-explore)}
+  .card.s-build{border-left-color:var(--s-build)} .card.s-live{border-left-color:var(--s-live)}
+  .card.s-parked{border-left-color:var(--s-parked);opacity:.7}
+  .card-head{padding:1rem 1.1rem .7rem;cursor:pointer}
+  .card-head .top{display:flex;align-items:flex-start;gap:.6rem}
+  .card-icon{font-size:1.3rem;line-height:1}
+  .card-title{font-family:'Fraunces';font-size:1.08rem;font-weight:600;flex:1;line-height:1.2}
+  .chev{color:var(--ink-soft);transition:transform .2s;font-size:.9rem;margin-top:.2rem}
+  .card.open .chev{transform:rotate(90deg)}
+  .card-blurb{font-size:.86rem;color:var(--ink-soft);margin:.5rem 0 .7rem}
+  .tags{display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.6rem}
+  .tag{font-size:.68rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:.2rem .5rem;border-radius:6px;border:1px solid var(--line);color:var(--ink-soft);background:var(--bg)}
+  .tag.hi{color:var(--accent-dark);background:var(--accent-soft);border-color:#cfe6e1}
+  .tag.lo{color:#8a4b1e;background:#fbf1e4;border-color:#f0ddc4}
+  .next{font-size:.8rem;color:var(--ink);background:var(--bg);border-radius:8px;padding:.5rem .6rem;display:flex;gap:.45rem;align-items:flex-start}
+  .next b{color:var(--accent-dark);font-weight:700;white-space:nowrap}
+
+  .card-foot{display:flex;align-items:center;gap:.5rem;padding:.6rem 1.1rem;border-top:1px solid var(--line);background:#fcfbf8}
+  .status-sel{font-family:inherit;font-size:.78rem;font-weight:600;border:1px solid var(--line);border-radius:8px;padding:.35rem .5rem;background:#fff;color:var(--ink);cursor:pointer}
+  .mo{margin-left:auto;display:flex;align-items:center;gap:.3rem;font-size:.8rem;color:var(--ink-soft)}
+  .mo input{width:80px;text-align:right;border:1px solid var(--line);border-radius:7px;padding:.3rem .45rem;font-family:inherit}
+
+  /* expand body */
+  .body{display:none;padding:0 1.1rem 1rem;border-top:1px dashed var(--line)}
+  .card.open .body{display:block}
+  .body h4{font-size:.74rem;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);margin:.9rem 0 .4rem;font-family:'Inter'}
+  ul.steps{list-style:none;display:flex;flex-direction:column;gap:.1rem}
+  ul.steps li{display:flex;gap:.55rem;align-items:flex-start;padding:.35rem .4rem;border-radius:7px}
+  ul.steps li:hover{background:var(--bg)}
+  ul.steps input{appearance:none;-webkit-appearance:none;flex:0 0 18px;width:18px;height:18px;border:2px solid var(--line);
+    border-radius:5px;cursor:pointer;margin-top:.1rem;position:relative}
+  ul.steps input:checked{background:var(--accent);border-color:var(--accent)}
+  ul.steps input:checked::after{content:"";position:absolute;left:4px;top:0;width:5px;height:10px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+  ul.steps label{font-size:.85rem;cursor:pointer;flex:1}
+  ul.steps input:checked + label{color:var(--ink-soft);text-decoration:line-through}
+  .body textarea{width:100%;font-family:inherit;font-size:.86rem;border:1px solid var(--line);border-radius:9px;padding:.55rem .65rem;min-height:70px;resize:vertical;color:var(--ink)}
+  .body textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+
+  .flash{position:fixed;bottom:20px;right:20px;background:var(--ink);color:#fff;padding:.6rem 1rem;border-radius:9px;
+    font-size:.85rem;opacity:0;transform:translateY(10px);transition:.25s;z-index:99;pointer-events:none}
+  .flash.show{opacity:1;transform:translateY(0)}
+  footer{color:var(--ink-soft);font-size:.8rem;border-top:1px solid var(--line);margin-top:2rem;padding-top:1.1rem}
+
+  @media print{
+    .toolbar,.tools,.flash,.status-sel{display:none!important}
+    .card{break-inside:avoid;box-shadow:none}
+    .body{display:block!important}
+    body{background:#fff}
+  }
+</style>
+</head>
+<body>
+<div class="main">
+  <span class="badge">Brandon &amp; Tammy · Da Nang plan</span>
+  <h1>Money Paths Tracker</h1>
+  <p class="lead">Every income path we've mapped — investing, the relocation guide, and the <i>Hail of Fire</i> game
+    business — in one place. Set each path's status, log what it actually earns per month, and work the next action.
+    Everything saves to this device automatically.</p>
+
+  <div class="summary">
+    <div class="panel">
+      <h3>Monthly income vs. target</h3>
+      <div class="money-row">
+        <span class="now" id="incNow">$0</span><span class="of">/mo earned</span>
+        <span class="tgt">target&nbsp;$<input type="number" id="target" placeholder="1200"> /mo</span>
+      </div>
+      <div class="bar"><div class="fill" id="incFill"></div></div>
+      <div class="hint" id="incHint">Set a target = your Da Nang monthly budget floor, then log income per path below.</div>
+    </div>
+    <div class="panel">
+      <h3>Paths by status</h3>
+      <div class="counts" id="counts"></div>
+      <div class="hint">Click any card to expand its steps &amp; notes.</div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="filters" id="filters"></div>
+    <div class="tools">
+      <button class="btn" onclick="expandAll(true)">Expand all</button>
+      <button class="btn" onclick="expandAll(false)">Collapse</button>
+      <button class="btn" onclick="exportData()">⬇ Backup</button>
+      <button class="btn" onclick="document.getElementById('imp').click()">⬆ Restore</button>
+      <input type="file" id="imp" accept="application/json" style="display:none" onchange="importData(event)">
+      <button class="btn primary" onclick="window.print()">🖨 PDF</button>
+    </div>
+  </div>
+
+  <div id="board"></div>
+
+  <footer>
+    <p><b>Tip:</b> keep statuses honest — most paths should sit at <i>Idea</i> or <i>Exploring</i> until one earns its place.
+    The win condition is simple: total monthly income ≥ your Da Nang budget floor, with as much of it as possible coming
+    from <i>passive</i> and <i>recurring</i> paths. Back up regularly (data lives only in this browser).</p>
+  </footer>
+</div>
+<div class="flash" id="flash">Saved ✓</div>
+
+<script>
+/* ===================== STATUS DEFS ===================== */
+const STATUS=[
+  {k:"idea",label:"Idea",color:"--s-idea"},
+  {k:"explore",label:"Exploring",color:"--s-explore"},
+  {k:"build",label:"Building",color:"--s-build"},
+  {k:"live",label:"Live / Earning",color:"--s-live"},
+  {k:"parked",label:"Parked",color:"--s-parked"},
+];
+
+/* ===================== PATHS ===================== */
+const CATS=[
+  {id:"found",title:"💰 Foundation",sub:"Low-effort money basics — do these regardless."},
+  {id:"replat",title:"🌐 Hail of Fire — Replatform to Global",sub:"Replace the in-person sales & funnel you lose by moving. The urgent part."},
+  {id:"subs",title:"🔁 Hail of Fire — Subscription Leverage",sub:"Squeeze more recurring revenue from the companion site you just launched."},
+  {id:"new",title:"🎲 New Game Projects",sub:"Reuse the engine and the audience — don't start cold."},
+];
+
+const PATHS=[
+  // ---- Foundation ----
+  {id:"invest",cat:"found",icon:"📈",title:"Set-and-forget the $1,000",
+   type:"Passive",effort:"Low",potential:"Low",when:"Now",
+   blurb:"Park it in a broad ETF (VTI/VOO) or T-bills. At $1k it's savings, not an income engine — but build the habit.",
+   steps:["Open/confirm a brokerage that works from abroad","Buy a broad-market ETF or T-bills","Set auto-recurring contributions if any spare cash","Forget about it — don't check daily"]},
+  {id:"guide",cat:"found",icon:"🧳",title:"Da Nang Relocation Guide (digital product)",
+   type:"Passive",effort:"Med",potential:"Low-Med",when:"Months",
+   blurb:"Fill the guide with your real move data, then sell the playbook to the next person. Built; needs your lived specifics.",
+   steps:["Use the guide for your own move (fill every field)","Strip personal bits, keep verified specifics + numbers","Export polished PDF + screenshots of the budget tool","List on Gumroad/Payhip/Etsy","Seed it in Vietnam/expat FB, Zalo, Reddit groups"]},
+
+  // ---- Replatform ----
+  {id:"pod",cat:"replat",icon:"📕",title:"Print-on-Demand book",
+   type:"Passive",effort:"Low-Med",potential:"Med",when:"Weeks",
+   blurb:"DriveThruRPG / Wargame Vault POD. Replaces convention & FLGS print sales with global, zero-inventory, hands-off fulfillment. Highest-leverage move.",
+   steps:["Prep print-ready interior + cover to POD specs","Set up POD on DriveThruRPG / Wargame Vault","Order a proof copy, check quality","Link POD from free PWYW listing + companion site","Announce to Discord / mailing list"]},
+  {id:"online",cat:"replat",icon:"🖥️",title:"Online play (Tabletop Simulator / Vassal)",
+   type:"Funnel",effort:"Med-High",potential:"Indirect",when:"Months",
+   blurb:"Lets people play HoF with no minis and no local group — your new global playtest table and cheapest discovery engine. Replaces the play group you lose.",
+   steps:["Decide TTS mod vs. Vassal module (or both)","Build core module: units, tokens, map, dice","Recruit testers from Discord across time zones","Publish to Steam Workshop / Vassal library","Run scheduled online demo/league nights"]},
+  {id:"funnel",cat:"replat",icon:"💬",title:"Discord + battle-report content funnel",
+   type:"Funnel",effort:"Med (ongoing)",potential:"Indirect",when:"Weeks",
+   blurb:"Make Discord the home base; pair with periodic battle reports/videos. Free rules → Discord → subscription → POD book. Your global replacement for convention discovery.",
+   steps:["Set up/clean up the Discord with clear onboarding","Publish a battle report cadence (video or photo+text)","Cross-post to Reddit (r/wargaming etc.) + FB groups","Lean into AU/NZ + EU time-zone overlap (UTC+7)","Funnel every post → free rules → sub"]},
+
+  // ---- Subscription ----
+  {id:"tiers",cat:"subs",icon:"🪜",title:"Subscription tier ladder",
+   type:"Recurring",effort:"Low-Med",potential:"Med",when:"Weeks",
+   blurb:"Keep $1 as the low-friction door, add a ~$5–8 tier (digital tools, early access, vote-on-next-faction, PDF bundles). Real per-user revenue lives in the mid tier.",
+   steps:["Define 2–3 tiers and what each unlocks","Price a mid tier around the digital tools","Add annual / lifetime options","Make upgrade path obvious on the site","Watch conversion $1 → mid tier"]},
+  {id:"builder",cat:"subs",icon:"🛠️",title:"Interactive army / force builder",
+   type:"Recurring driver",effort:"High (Claude-assisted)",potential:"Med-High",when:"Months",
+   blurb:"The moat: almost no indie ruleset has good software. A builder that picks units, totals points, validates a list — and you can build it with Claude. Best single thing to add.",
+   steps:["Confirm a clean points/unit-cost dataset exists","Spec the builder (factions, points, validation, export)","Build MVP (one faction) as single-file web app","Gate it behind the mid subscription tier","Expand faction-by-faction with monthly drops"]},
+  {id:"flywheel",cat:"subs",icon:"🌀",title:"Monthly content flywheel",
+   type:"Recurring",effort:"Med (ongoing)",potential:"Med",when:"Ongoing",
+   blurb:"Each monthly drop (France → Italy, N. Africa, East Front, Pacific, Winter War…) is both retention AND marketing — every release is also a battle report/video that refills the funnel.",
+   steps:["Plan a 12-month theater/faction roadmap","Ship one drop per month, consistently","Turn each drop into a content piece (video/post)","Tease next month to drive retention","Track churn & which themes convert best"]},
+
+  // ---- New projects ----
+  {id:"vietnam",cat:"new",icon:"🌏",title:"Hail of Fire: Vietnam (era reskin)",
+   type:"One-time + recurring",effort:"High",potential:"High",when:"Months",
+   blurb:"Reskin your engine to a new era at a fraction of designing fresh — and you'll be designing a Vietnam War game while LIVING in Vietnam. 'Developed on the ground in Da Nang' is marketing that writes itself.",
+   steps:["Scope what the engine needs for the era (helos, jungle, asymmetry)","Visit/photograph real sites for authenticity + content","Draft core era rules + first forces","Soft-launch to existing HoF audience","Document the 'designed in-country' story as marketing"]},
+  {id:"solo",cat:"new",icon:"🎯",title:"Solo / co-op mode supplement",
+   type:"One-time",effort:"Med",potential:"Med",when:"Months",
+   blurb:"Solo wargaming is a fast-growing segment — and it solves YOUR problem: no local group in Da Nang means you need solo rules to keep playing/testing anyway. Two birds.",
+   steps:["Design an AI/oracle system for enemy behavior","Playtest solo through your own campaigns","Write up as a paid supplement","Bundle with subscription or sell standalone","Make battle-report content from solo plays"]},
+  {id:"supps",cat:"new",icon:"🗺️",title:"Supplements & POD accessories",
+   type:"Passive",effort:"Low-Med each",potential:"Med (cumulative)",when:"Ongoing",
+   blurb:"Campaign/scenario books (D-Day, Market Garden, Bulge), objective/card decks, tokens, dice — all POD, all passive, each one compounds off the existing book.",
+   steps:["List candidate supplements & accessories","Prioritize by effort vs. demand","Produce one, set up as POD/PDF","Cross-sell from the main book + site","Rinse and repeat"]},
+];
+
+/* ===================== STATE ===================== */
+const KEY="money-paths-v1";
+let state=load(); function load(){try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return{}}}
+let t; function save(){localStorage.setItem(KEY,JSON.stringify(state));clearTimeout(t);
+  const f=document.getElementById('flash');f.classList.add('show');t=setTimeout(()=>f.classList.remove('show'),900);}
+function g(k,d){return state[k]!==undefined?state[k]:d;}
+function s(k,v){state[k]=v;save();}
+
+let filter="all";
+
+/* ===================== RENDER ===================== */
+function cssVar(v){return getComputedStyle(document.documentElement).getPropertyValue(v);}
+
+function render(){
+  // filters
+  const fl=document.getElementById('filters');
+  const opts=[["all","All paths"]].concat(STATUS.map(x=>[x.k,x.label]));
+  fl.innerHTML=opts.map(([k,l])=>`<span class="chip ${filter===k?'active':''}" data-f="${k}">${l}</span>`).join("");
+  fl.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{filter=c.dataset.f;render();});
+
+  // board
+  const board=document.getElementById('board');
+  board.innerHTML="";
+  CATS.forEach(cat=>{
+    const paths=PATHS.filter(p=>p.cat===cat.id && (filter==="all"||g("st:"+p.id,"idea")===filter));
+    if(!paths.length) return;
+    const sec=document.createElement('div');
+    sec.innerHTML=`<div class="cat-title ff">${cat.title}</div><div class="cat-sub">${cat.sub}</div>`;
+    const grid=document.createElement('div'); grid.className="grid";
+    paths.forEach(p=>grid.appendChild(cardEl(p)));
+    sec.appendChild(grid); board.appendChild(sec);
+  });
+  updateSummary();
+}
+
+function tagClass(label,kind){
+  const hi=["High","Med-High","Med"], lo=["Low","Low-Med"];
+  if(kind==="potential"){ if(hi.includes(label))return"tag hi"; if(lo.includes(label))return"tag lo"; }
+  return "tag";
+}
+
+function cardEl(p){
+  const st=g("st:"+p.id,"idea");
+  const open=g("op:"+p.id,false);
+  const el=document.createElement('div');
+  el.className=`card s-${st} ${open?'open':''}`;
+  // next action = first unchecked step
+  let nextIdx=p.steps.findIndex((_,i)=>!g(`ck:${p.id}.${i}`,false));
+  const nextTxt = nextIdx>=0 ? p.steps[nextIdx] : "All steps done 🎉";
+
+  el.innerHTML=`
+    <div class="card-head">
+      <div class="top">
+        <span class="card-icon">${p.icon}</span>
+        <span class="card-title">${p.title}</span>
+        <span class="chev">▶</span>
+      </div>
+      <div class="card-blurb">${p.blurb}</div>
+      <div class="tags">
+        <span class="tag">${p.type}</span>
+        <span class="${tagClass(p.effort,'effort')}">Effort: ${p.effort}</span>
+        <span class="${tagClass(p.potential,'potential')}">Upside: ${p.potential}</span>
+        <span class="tag">First $: ${p.when}</span>
+      </div>
+      <div class="next"><b>Next →</b><span>${nextTxt}</span></div>
+    </div>
+    <div class="body">
+      <h4>Steps</h4>
+      <ul class="steps">
+        ${p.steps.map((stp,i)=>{const id=`ck:${p.id}.${i}`;return`<li><input type="checkbox" id="${id}" ${g(id,false)?'checked':''}><label for="${id}">${stp}</label></li>`}).join("")}
+      </ul>
+      <h4>Notes</h4>
+      <textarea data-note="${p.id}" placeholder="Decisions, links, numbers, who you talked to…">${g("nt:"+p.id,"")}</textarea>
+    </div>
+    <div class="card-foot">
+      <select class="status-sel" data-st="${p.id}">
+        ${STATUS.map(x=>`<option value="${x.k}" ${st===x.k?'selected':''}>${x.label}</option>`).join("")}
+      </select>
+      <span class="mo">$<input type="number" min="0" data-mo="${p.id}" value="${g("mo:"+p.id,"")}" placeholder="0">/mo</span>
+    </div>`;
+
+  // expand toggle (head)
+  el.querySelector('.card-head').onclick=()=>{ s("op:"+p.id,!g("op:"+p.id,false)); el.classList.toggle('open'); };
+  // status
+  el.querySelector('[data-st]').onclick=e=>e.stopPropagation();
+  el.querySelector('[data-st]').onchange=e=>{ s("st:"+p.id,e.target.value); render(); };
+  // monthly income
+  const mo=el.querySelector('[data-mo]');
+  mo.onclick=e=>e.stopPropagation();
+  mo.oninput=e=>{ s("mo:"+p.id,e.target.value); updateSummary(); };
+  // steps (state stored under the checkbox's own id, e.g. "ck:invest.0")
+  el.querySelectorAll('.steps input').forEach(c=>{
+    c.onclick=e=>e.stopPropagation();
+    c.onchange=()=>{ s(c.id,c.checked); render(); };
+  });
+  // notes
+  const ta=el.querySelector('textarea');
+  ta.onclick=e=>e.stopPropagation();
+  ta.oninput=()=>s("nt:"+p.id,ta.value);
+  return el;
+}
+
+function updateSummary(){
+  let total=0;
+  PATHS.forEach(p=>{ total+=parseFloat(g("mo:"+p.id,0))||0; });
+  document.getElementById('incNow').textContent="$"+total.toLocaleString();
+  const tgt=parseFloat(g("tgt",""))||0;
+  const pct=tgt?Math.min(100,Math.round(total/tgt*100)):0;
+  document.getElementById('incFill').style.width=pct+"%";
+  const hint=document.getElementById('incHint');
+  if(tgt){ const gap=tgt-total;
+    hint.textContent = gap>0 ? `${pct}% of target · $${gap.toLocaleString()}/mo to go` : `🎉 Target met — ${pct}% of goal`;
+  }
+  // counts
+  const c={}; STATUS.forEach(x=>c[x.k]=0);
+  PATHS.forEach(p=>{ c[g("st:"+p.id,"idea")]++; });
+  document.getElementById('counts').innerHTML=STATUS.map(x=>
+    `<span class="count"><span class="dot" style="background:${cssVar(x.color)}"></span>${x.label}: ${c[x.k]}</span>`).join("");
+}
+
+/* ===================== MISC ===================== */
+function expandAll(v){ PATHS.forEach(p=>s("op:"+p.id,v)); render(); }
+const tgtEl=document.getElementById('target');
+tgtEl.value=g("tgt",""); tgtEl.oninput=()=>{ s("tgt",tgtEl.value); updateSummary(); };
+
+function exportData(){
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download="money-paths-backup-"+new Date().toISOString().slice(0,10)+".json"; a.click();
+}
+function importData(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{try{state=JSON.parse(r.result);save();location.reload();}catch(x){alert("Couldn't read that file.");}};
+  r.readAsText(f);}
+
+render();
+</script>
+</body>
+</html>
